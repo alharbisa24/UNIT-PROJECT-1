@@ -5,49 +5,43 @@ from datetime import datetime
 import questionary
 import json
 
-def loadUsers():
-    try:
-        with open('users.json', 'r') as f:
-            data = json.load(f)
-            return data
-    except FileNotFoundError:
-        print(f"❌ file '{'users.json'}' not found.")
-        return []
+users:list= []
+movies:list= []
+bookings:list= []
+admins:list= []
+
+try:
+    with open('users.json', 'r', encoding='UTF-8') as File:
+        content = File.read()
+        users= json.loads(content)
+except Exception as e:
+    print("file not found")
+
     
-def saveUsers(users_data):
-    with open('users.json', 'w') as f:
-        json.dump(users_data, f, indent=2)
+try:
+    with open('movies.json', 'r', encoding='UTF-8') as File:
+        content = File.read()
+        movies= json.loads(content)
+except Exception as e:
+    print("file not found")
 
+try:
+    with open('bookings.json', 'r', encoding='UTF-8') as File:
+        content = File.read()
+        bookings= json.loads(content)
+except Exception as e:
+    print("file not found")
 
+try:
+    with open('admins.json', 'r', encoding='UTF-8') as File:
+        content = File.read()
+        admins= json.loads(content)
+except Exception as e:
+    print("file not found")
 
-def loadAdmins():
-    try:
-        with open('admins.json', 'r') as f:
-            data = json.load(f)
-            return data
-    except FileNotFoundError:
-        print(f"❌ file '{'admins.json'}' not found.")
-        return []
     
-def loadBookings():
-    try:
-        with open('bookings.json', 'r') as f:
-            data = json.load(f)
-            return data
-    except FileNotFoundError:
-        print(f"❌ file '{'bookings.json'}' not found.")
-        return []
-
-def loadMovies():
-    try:
-        with open('movies.json', 'r') as f:
-            data = json.load(f)
-            return data
-    except FileNotFoundError:
-        print(f"❌ file '{'movies.json'}' not found.")
-        return []
-
-
+    
+    
 
 
 console = Console()
@@ -72,9 +66,8 @@ selected = questionary.select(
 if selected == choices[0]:
 
     user_email  = console.input("enter your email: ")
-    users_data = loadUsers()
     emailFinded = False
-    for user in users_data:
+    for user in users:
         if user['email'] == user_email:
             emailFinded = True
             console.print('[bold red]ً welcome back ! [/bold red]')
@@ -84,8 +77,7 @@ if selected == choices[0]:
         "email": user_email,
         "movies": []
     }
-        users_data.append(new_user_data)
-        saveUsers(users_data)
+        users.append(new_user_data)
         console.print('\n[bold blue] Welcome ! new account created [/bold blue]')
     
 
@@ -97,14 +89,13 @@ Please choose an option:
     "1) Search for movie by name",
     "2) Show available movies",
     "3) Book a movie",
-    "4) Cancel a booking",
-    "5) Show your booking history",
+    "4) Cancel a book",
+    "5) Show booking history",
     "6) Smart search for a movie (AI-powered)" ,
-    "7) Get AI-based movie recommendations (AI-powered)",
-    "8) Smart chatbot: Ask about movies (AI-powered)",
-    "9) Search for movie by name",
-    "10) Rate & review a movie",
-    "11) Exit",
+    "7) Get AI movie recommendations (AI-powered)",
+    "8) Smart chatbot (AI-powered)",
+    "9) Rate & review a movie",
+    "10) Exit",
 ]
 
     selected2 = questionary.select(
@@ -116,7 +107,6 @@ Please choose an option:
        
         if selected2 == user_choices[0]:
             movie_title = console.input('Enter a movie name:')
-            movies = loadMovies()
             movie_find=False
             for movie in movies:
                 if movie['title'] == movie_title:
@@ -142,7 +132,6 @@ Please choose an option:
             if movie_find==False:
                 console.print("[bold red] Sorry! movie not found [/bold red]")
         if selected2 == user_choices[1]:
-            movies = loadMovies()
             print('----------------')
             for movie in movies:
                     ratings = movie['ratings']
@@ -168,13 +157,28 @@ Please choose an option:
         "\n Please choose an option:",
         choices=user_choices,
         use_arrow_keys=True).ask()
+    else:
+        with open('users.json','w', encoding='UTF-8') as File:
+            content = json.dumps(users, indent=2)
+            File.write(content)
+            File.close()
+
+        with open('movies.json','w', encoding='UTF-8') as File:
+            content = json.dumps(movies, indent=2)
+            File.write(content)
+            File.close()
+
+        with open('bookings.json','w', encoding='UTF-8') as File:
+            content = json.dumps(bookings, indent=2)
+            File.write(content)
+            File.close()
+            
 
 elif selected == choices[1]:
 
     admin_email  = console.input("enter your email: ")
-    admins_data = loadAdmins()
     emailFinded = False
-    for admin in admins_data:
+    for admin in admins:
         if admin['email'] == admin_email:
             emailFinded = True
             console.print('[bold red]ً welcome back ! [/bold red]')
@@ -194,7 +198,7 @@ Please choose an option:
     "3) Edit existing movie information",
     "4) Book a movie for customer",
     "5) Cancel a movie booking for customer",
-    "6) View customer Bookings",
+    "6) View customer bookings",
     "7) Reschedule a movie date/time",
     "8) View movies Statistics & Reports",
     "9) View Movie Feedback & Ratings",
@@ -207,9 +211,15 @@ Please choose an option:
         choices=admin_choices,
         use_arrow_keys=True).ask()
    
-        while selected3 != admin_choices[11]:
+        while selected3 != admin_choices[10]:
             if selected3 == admin_choices[0]:
                 print("hi")
+
+        else:
+            with open('admins.json','w', encoding='UTF-8') as File:
+                content = json.dumps(admins, indent=2)
+                File.write(content)
+                File.close()
                 
             selected3 = questionary.select(" Please choose an option:",
             choices=admin_choices,
