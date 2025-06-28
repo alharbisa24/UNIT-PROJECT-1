@@ -241,8 +241,22 @@ email: {user_email}
 row: {removed['row']}
 seat: {removed['seat']}
 [/bold red]''')
+        
+        
+        
+        if selected2 == user_choices[4]:
+            user_bookings = []
+            for index, booking in enumerate(bookings):
+                if booking['user_email'].lower() == user_email.lower():
+                    user_bookings.append((index, booking))
 
-
+            if not user_bookings:
+                console.print("[red] Sorry no bookings found.[/red]")
+            else:
+                console.print("\nBookings list:")
+                for index, booking in user_bookings:
+                    console.print(f"{booking['movie_title']} - Row {booking['row']} Seat {booking['seat']}")
+   
 
 
 
