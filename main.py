@@ -29,7 +29,23 @@ def loadAdmins():
         print(f"❌ file '{'admins.json'}' not found.")
         return []
     
+def loadBookings():
+    try:
+        with open('bookings.json', 'r') as f:
+            data = json.load(f)
+            return data
+    except FileNotFoundError:
+        print(f"❌ file '{'bookings.json'}' not found.")
+        return []
 
+def loadMovies():
+    try:
+        with open('movies.json', 'r') as f:
+            data = json.load(f)
+            return data
+    except FileNotFoundError:
+        print(f"❌ file '{'movies.json'}' not found.")
+        return []
 
 
 
@@ -80,10 +96,10 @@ Please choose an option:
     user_choices = [
     "1) Search for movie by name",
     "2) Show available movies",
-    "3) Smart search for a movie (AI-powered)" ,
-    "4) Book a movie",
-    "5) Cancel a booking",
-    "6) Show your booking history",
+    "3) Book a movie",
+    "4) Cancel a booking",
+    "5) Show your booking history",
+    "6) Smart search for a movie (AI-powered)" ,
     "7) Get AI-based movie recommendations (AI-powered)",
     "8) Smart chatbot: Ask about movies (AI-powered)",
     "9) Search for movie by name",
@@ -96,18 +112,63 @@ Please choose an option:
         choices=user_choices,
         use_arrow_keys=True 
     ).ask()
-   
-    while selected2 != user_choices[11]:
+    while selected2 != user_choices[10]:
+       
         if selected2 == user_choices[0]:
-            print("hi")
+            movie_title = console.input('Enter a movie name:')
+            movies = loadMovies()
+            movie_find=False
+            for movie in movies:
+                if movie['title'] == movie_title:
+                    movie_find = True
+                    console.print("[yellow] Movie Found ! [/yellow]\n")
+                    ratings = movie['ratings']
+                    total_score = sum(r['score'] for r in ratings)
+                    console.print(f'''[blue]
+ Title: {movie['title']}                              
+ description: {movie['description']}                              
+ release_year: {movie['release_year']}                              
+ average_ratings : [bold yellow]{total_score / len(ratings)} [/bold yellow]       
+ Genres: {(', '.join(movie['genres']))}
+ Ratings: 
+ [/blue]''')
+                    i = 0
+                    for rating in ratings:
+                        i+=1
+                        description = rating['description']
+                        score = rating['score']
+                        console.print(f"[bold]{i}[/bold]- {description}: {score}")
+
+            if movie_find==False:
+                console.print("[bold red] Sorry! movie not found [/bold red]")
+        if selected2 == user_choices[1]:
+            movies = loadMovies()
+            print('----------------')
+            for movie in movies:
+                    ratings = movie['ratings']
+                    total_score = sum(r['score'] for r in ratings)
+                    console.print(f'''[blue]\n
+ [bold green]{movie['title']}[/bold green]
+ description: {movie['description']}                              
+ release_year: {movie['release_year']}                              
+ average_ratings : [bold yellow]{total_score / len(ratings)} [/bold yellow]       
+ Genres: {(', '.join(movie['genres']))}
+ Ratings:[/blue]''')
+                    i = 0
+                    for rating in ratings:
+                        i+=1
+                        description = rating['description']
+                        score = rating['score']
+                        console.print(f" [bold]{i}[/bold]- {description}: {score}")
+            print('----------------')
 
 
 
         selected2 = questionary.select(
-        " Please choose an option::",
+        "\n Please choose an option:",
         choices=user_choices,
-        use_arrow_keys=True 
-    ).ask()
+        use_arrow_keys=True).ask()
+
 elif selected == choices[1]:
 
     admin_email  = console.input("enter your email: ")
