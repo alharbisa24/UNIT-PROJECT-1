@@ -1,8 +1,14 @@
 [
-    {
-    "movie_title":"Movie1",
-    "user_email":"alharbisa24@gmail.com",
-    "row":"A",
-    "seat":25
-    }
+  {
+    "movie_title": "Movie1",
+    "user_email": "alharbisa24@gmail.com",
+    "row": "A",
+    "seat": 1
+  },
+  {
+    "movie_title": "Movie2",
+    "user_email": "a",
+    "row": "A",
+    "seat": 5
+  }
 ]

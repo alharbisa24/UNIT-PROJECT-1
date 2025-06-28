@@ -44,6 +44,7 @@ except Exception as e:
     
 
 
+
 console = Console()
 
 
@@ -70,7 +71,7 @@ if selected == choices[0]:
     for user in users:
         if user['email'] == user_email:
             emailFinded = True
-            console.print('[bold red]ً welcome back ! [/bold red]')
+            console.print('[bold green]ً welcome back ! [/bold green]')
             continue
     if emailFinded == False:
         new_user_data = {
@@ -103,7 +104,7 @@ Please choose an option:
         choices=user_choices,
         use_arrow_keys=True 
     ).ask()
-    while selected2 != user_choices[10]:
+    while selected2 != user_choices[9]:
        
         if selected2 == user_choices[0]:
             movie_title = console.input('Enter a movie name:')
@@ -150,6 +151,104 @@ Please choose an option:
                         score = rating['score']
                         console.print(f" [bold]{i}[/bold]- {description}: {score}")
             print('----------------')
+        if selected2 == user_choices[2]:
+            select_movie_choise = []
+            for index, movie in enumerate(movies):
+                title = movie['title']
+                desc = movie['description']
+                year = movie['release_year']
+                ratings = movie['ratings']
+                avg = (sum(r['score'] for r in ratings)/ len(ratings))
+
+                choice_line = f"{title} | {desc} - {year} - Rating : {avg}"
+                select_movie_choise.append(
+                questionary.Choice(title=choice_line, value=index)
+                )
+
+
+            selected_movie_index = questionary.select("choose one of the following movies:",
+            choices=select_movie_choise,use_arrow_keys=True).ask()
+
+            selected_movie = movies[selected_movie_index]
+            console.print("\n            Screen  \n")
+            console.print("   1  2  3  4  5  6  7  8  9  10 ")
+           
+            booked_seats = {
+                (booking["row"], booking["seat"])
+                for booking in bookings
+                if booking["movie_title"] == selected_movie['title']}
+            
+            for row in range(10):
+                row = chr(65 + row)
+                seat_display = []
+                for seat in range(1, 11): 
+                    if (row, seat) in booked_seats:
+                        seat_display.append("🚫")
+                    else:
+                        seat_display.append("🟩")
+                print(f"{row}  {' '.join(seat_display)}")
+
+            selected_seat_row =console.input("provide a row and seat to book: (EX : A5)")
+           
+            while(len(selected_seat_row) > 2 or len(selected_seat_row) < 1):
+                selected_seat_row =console.input("provide a row and seat to book: (EX : A5)")
+
+
+
+            selected_row = selected_seat_row[0]
+            selected_seat = int(selected_seat_row[1:])
+            if (selected_row, selected_seat) in booked_seats:
+                console.print(f"[red] Sorry its already booked![/red]")
+                selected_seat_row =console.input("provide a row and seat to book: (EX : A5)")
+
+            new_booking = {
+                "movie_title": selected_movie['title'],
+                "user_email": user_email,
+                "row": selected_row,
+                "seat": selected_seat
+            }
+            bookings.append(new_booking)
+            console.print(f'''[bold green]Booked successfully !
+Movie Title: {selected_movie['title']}
+email: {user_email}
+row: {selected_row}
+seat: {selected_seat}
+[/bold green]''')
+            
+
+            
+        if selected2 == user_choices[3]:
+            user_bookings = []
+            for index, booking in enumerate(bookings):
+                if booking['user_email'].lower() == user_email.lower():
+                    user_bookings.append((index, booking))
+
+            if not user_bookings:
+                console.print("[red] Sorry no bookings found.[/red]")
+            else:
+                bookings_choices = []
+                for index, booking in user_bookings:
+                    choice_title = f"{booking['movie_title']} - Row {booking['row']} Seat {booking['seat']}"
+                    choice = questionary.Choice(title=choice_title, value=index)
+                    bookings_choices.append(choice)
+
+                selected_index = questionary.select("Choose a booking to cancel:",choices=bookings_choices).ask()
+
+                removed = bookings.pop(selected_index)
+                console.print(f'''[bold red]Booking canceled successfully !
+Movie Title: {removed['movie_title']}
+email: {user_email}
+row: {removed['row']}
+seat: {removed['seat']}
+[/bold red]''')
+
+
+
+
+
+
+
+           
 
 
 
@@ -181,7 +280,7 @@ elif selected == choices[1]:
     for admin in admins:
         if admin['email'] == admin_email:
             emailFinded = True
-            console.print('[bold red]ً welcome back ! [/bold red]')
+            console.print('[bold green]ً welcome back ! [/bold green]')
             continue
     if emailFinded == False:
         console.print('[bold red] Sorry ! email not found [/bold red]')
