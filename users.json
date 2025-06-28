@@ -1,0 +1,30 @@
+[
+  {
+    "email": "alharbisa24@gmail.com",
+    "movies": [
+      {
+        "title": "Inception",
+        "release_year": 2010,
+        "genres": [
+          "G1",
+          "G2",
+          "G3"
+        ],
+        "ratings": [
+          {
+            "description": "test",
+            "score": 9
+          },
+          {
+            "description": "test",
+            "score": 7
+          },
+          {
+            "description": "test",
+            "score": 9
+          }
+        ]
+      }
+    ]
+  }
+]
