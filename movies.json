@@ -1,50 +1,14 @@
 [
   {
+    "id": 1,
     "title": "Movie1",
     "description": "test",
-    "release_year": "2020",
-    "genres": [
-      "g1",
-      "g2",
-      "g3"
-    ],
-    "ratings": [
-      {
-        "description": "test",
-        "score": 5
-      },
-      {
-        "description": "test",
-        "score": 5
-      },
-      {
-        "description": "test",
-        "score": 5
-      }
-    ]
+    "release_year": "2020"
   },
   {
+    "id": 2,
     "title": "Movie2",
     "description": "test",
-    "release_year": "2020",
-    "genres": [
-      "g1",
-      "g2",
-      "g3"
-    ],
-    "ratings": [
-      {
-        "description": "test",
-        "score": 5
-      },
-      {
-        "description": "test",
-        "score": 5
-      },
-      {
-        "description": "test",
-        "score": 5
-      }
-    ]
+    "release_year": "2020"
   }
 ]

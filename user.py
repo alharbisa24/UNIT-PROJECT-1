@@ -1,8 +1,11 @@
 class User():
-    def __init__(self,email:str,movies:list):
-        self.__email=email
-        self.__movies =movies
+    def __init__(self,id, email):
+        self.__id = id
+        self.__email = email
 
+
+    def getId(self):
+        return self.__id
     
     def getEmail(self):
         return self.__email
@@ -10,8 +13,11 @@ class User():
     def setEmail(self,email):
         self.__email = email
 
-    def getMovies(self):
-        return self.__movies
-
-    def setMovies(self,movies):
-        self.__movies= movies
+    def to_dict(self):
+        return {
+            "id": self.__id,
+            "email": self.__email,
+        }
+    
+    def from_dict(data):
+      return User(data['id'], data['email'])
