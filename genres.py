@@ -1,36 +1,47 @@
 class Genres():
-    def __init__(self,id,movieId,name):
+    def __init__(self,id,name, movies = []):
         self.__id= id
-        self.__movie_id= movieId
+        self.__movies= movies if movies else []
         self.__name= name
 
 
     def getId(self):
         return self.__id
     
-    def getMovieId(self):
-        return self.__movie_id
+    def getMovies(self):
+        return self.__movies
+    
+    
 
     def getName(self):
         return self.__name
     
-    def setMovieId(self,movieid):
-        self.__movie_id= movieid
+
         
     def setName(self,name):
         self.__name= name
 
-   
+
+
+    def addMovie(self, movie_id):
+        if movie_id not in self.__movies:
+            self.__movies.append(movie_id)
+            return True
+        return False
+    
+    def hasMovie(self, movie_id):
+        return movie_id in self.__movies
+    
     def to_dict(self):
         return {
             "id": self.__id,
-            "movie_id": self.__movie_id,
             "name": self.__name,
-            
+            "movies": self.__movies,
+
         }
     
     def from_dict(data):
-      return Genres(data['id'], data['title'], data['description'], data['release_year'])
+      return Genres(data['id'], data['name'], data['movies'])
    
 
 

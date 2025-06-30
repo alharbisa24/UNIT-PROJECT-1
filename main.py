@@ -85,11 +85,12 @@ try:
         content = File.read()
         genres_json=  json.loads(content)
         for genre in genres_json:
-            genresOBJ = GENRES.Genres(genre['id'],genre['movie_id'],genre['name'])
+            genresOBJ = GENRES.Genres.from_dict(genre)
             genres.append(genresOBJ)
         File.close()
 except Exception as e:
     print(e)
+
 
 try:
     with open('admins.json', 'r', encoding='UTF-8') as File:
@@ -142,16 +143,15 @@ if selected == choices[0]:
 Please choose an option:
 ''')
     user_choices = [
-    "1) Search for movie by title",
-    "2) Show available movies",
-    "3) Book a movie",
-    "4) Cancel a book",
-    "5) Show booking history",
-    "6) Smart search for a movie (using AI)" ,
-    "7) Get AI movie recommendations (using AI)",
-    "8) Smart chatbot (using AI)",
-    "9) Rate & review a movie",
-    "10) Exit",
+    "1) Show available movies",
+    "2) Book a movie",
+    "3) Cancel a book",
+    "4) Show booking history",
+    "5) Smart search for a movie (using AI)" ,
+    "6) Get AI movie recommendations (using AI)",
+    "7) Smart chatbot (using AI)",
+    "8) Rate & review a movie",
+    "9) Exit",
 ]
 
     selected2 = questionary.select(
@@ -159,68 +159,26 @@ Please choose an option:
         choices=user_choices,
         use_arrow_keys=True 
     ).ask()
-    while selected2 != user_choices[9]:
+    while selected2 != user_choices[8]:
        
         if selected2 == user_choices[0]:
-            movie_title = console.input('Enter a movie name:')
-            movie_find=False
-            for movie in movies:
-                if movie.getTitle() == movie_title:
-                    movie_find = True
-                    console.print("[yellow] Movie Found ! [/yellow]\n")
-                    movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
-                    
-                    try:
-                        total_score = sum(r.getScore() for r in movie_ratings)
-                        average_score = total_score / len(movie_ratings)
-                    except Exception as e:
-                        total_score =0
-                        average_score = 0
-
-                    movie_genres = [g for g in genres if g.getMovieId() == movie.getId()]
-                    genre_names = [g.getName() for g in movie_genres]
-
-
-                    
-                    
-                    console.print(f'''[blue]
- Title: {movie.getTitle()}                              
- description: [bold yellow]{movie.getDescription()}        [/bold yellow]                       
- release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                             
- average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
- Genres: {(" - ".join(genre_names))}
- Ratings: 
- [/blue]''')
-                    i = 0
-                    for rating in ratings:
-                        i+=1
-                        description = rating.getDescription()
-                        score = rating.getScore()
-                        console.print(f"[bold]{i}[/bold]- {description}: {score}")
-
-            if movie_find==False:
-                console.print("[bold red] Sorry! movie not found [/bold red]")
-        if selected2 == user_choices[1]:
             print('----------------')
             for movie in movies:
-                    movie_bookings = []
-                    for b in bookings:
                         movie_bookings = [b for b in bookings if b.getMovieId() == movie.getId()]
                    
-                    if len(movie_bookings) < 100:
-                        
-                        movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
-                        try:
-                            total_score = sum(r.getScore() for r in movie_ratings)
-                            average_score = total_score / len(movie_ratings)
-                        except Exception as e:
-                            total_score =0
-                            average_score = 0
+                        if len(movie_bookings) < 100:
+                            movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
+                            try:
+                                total_score = sum(r.getScore() for r in movie_ratings)
+                                average_score = total_score / len(movie_ratings)
+                            except Exception as e:
+                                total_score =0
+                                average_score = 0
 
-                        movie_genres = [g for g in genres if g.getMovieId() == movie.getId()]
-                        genre_names = [g.getName() for g in movie_genres]
+                            movie_genres = movie.getGenres(genres)
+                            genre_names = [g.getName() for g in movie_genres]
 
-                        console.print(f'''[blue]\n
+                            console.print(f'''[blue]\n
  [bold green] {movie.getTitle()}[/bold green]
  description: [bold yellow]{movie.getDescription()}        [/bold yellow]                       
  release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
@@ -228,14 +186,14 @@ Please choose an option:
  Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
  Genres: {(" - ".join(genre_names))}
  Ratings:[/blue]''')
-                        i = 0
-                        for ratin in ratings:
-                            i+=1
-                            description = ratin.getDescription()
-                            score = ratin.getScore()
-                            console.print(f" [bold]{i}[/bold]- {description}: {score}")
-                            print('----------------')
-        if selected2 == user_choices[2]:
+                            i = 0
+                            for ratin in ratings:
+                                i+=1
+                                description = ratin.getDescription()
+                                score = ratin.getScore()
+                                console.print(f" [bold]{i}[/bold]- {description}: {score}")
+                                print('----------------')
+        if selected2 == user_choices[1]:
             select_movie_choise = []
             for index, movie in enumerate(movies):
                 title = movie.getTitle()
@@ -250,7 +208,7 @@ Please choose an option:
                     total_score =0
                     average_score = 0
 
-                choice_line = f"{title} | {desc} - {year} - Rating : {average_score}"
+                choice_line = f"{title} | {year} - Rating : {average_score} \n Description: {desc}"
                 select_movie_choise.append(
                 questionary.Choice(title=choice_line, value=index)
                 )
@@ -305,7 +263,7 @@ seat: {selected_seat}
             
 
             
-        if selected2 == user_choices[3]:
+        if selected2 == user_choices[2]:
             user_bookings = [b for b in bookings if b.getUserId() == isUser(user_email)]   
             if len(user_bookings) < 0:
                 console.print("[red] Sorry no bookings found.[/red]")
@@ -331,7 +289,7 @@ seat: {removed.getSeat()}
         
         
         
-        if selected2 == user_choices[4]:
+        if selected2 == user_choices[3]:
             user_bookings = [b for b in bookings if b.getUserId() == isUser(user_email)]   
             if len(user_bookings) < 0:
                 console.print("[red] Sorry no bookings found.[/red]")
@@ -341,7 +299,7 @@ seat: {removed.getSeat()}
                     movie = findMovie(b.getMovieId())
                     console.print(f"{movie.getTitle()} - Row {b.getRow()} Seat {b.getSeat()}")
    
-        if selected2 == user_choices[8]:
+        if selected2 == user_choices[4]:
             select_movie_choise = []
             user_bookings = [b for b in bookings if b.getUserId() == isUser(user_email)]   
             if len(user_bookings) > 0:
@@ -426,6 +384,9 @@ seat: {removed.getSeat()}
             content = json.dumps([r.to_dict() for r in ratings], indent=2, ensure_ascii=False)
             file.write(content)
                     
+        with open('genres.json', 'w', encoding='UTF-8') as file:
+            content = json.dumps([g.to_dict() for g in genres], indent=2, ensure_ascii=False)
+            file.write(content)
 
 elif selected == choices[1]:
 
@@ -445,16 +406,16 @@ elif selected == choices[1]:
 Please choose an option:
 ''')
         admin_choices = [
-    "0) Search for movie by title",
-    "1) Add new movie",
-    "2) Delete a movie",
-    "3) Edit existing movie information",
-    "4) Book a movie for customer",
-    "5) Cancel a movie booking for customer",
-    "6) View customer bookings",
-    "7) View movies Statistics & Reports",
-    "8) Smart Analytics & Predictions (AI-powered)",
-    "9) Exit",
+    "1) Show available movies",
+    "2) Add new movie",
+    "3) Delete a movie",
+    "4) Edit existing movie information",
+    "5) Book a movie for customer",
+    "6) Cancel a movie booking for customer",
+    "7) View customer booking history",
+    "8) View movies Statistics & Reports",
+    "9) Smart Analytics & Predictions (using AI)",
+    "10) Exit",
 ]
 
         selected3 = questionary.select(
@@ -462,54 +423,175 @@ Please choose an option:
         choices=admin_choices,
         use_arrow_keys=True).ask()
    
-        while selected3 != admin_choices[8]:
+        while selected3 != admin_choices[9]:
             if selected3 == admin_choices[0]:
+                    for movie in movies:
+                        movie_bookings = [b for b in bookings if b.getMovieId() == movie.getId()]
+                   
+                        if len(movie_bookings) < 100:
+                            movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
+                            try:
+                                total_score = sum(r.getScore() for r in movie_ratings)
+                                average_score = total_score / len(movie_ratings)
+                            except Exception as e:
+                                total_score =0
+                                average_score = 0
+
+                            movie_genres = movie.getGenres(genres)
+                            genre_names = [g.getName() for g in movie_genres]
+
+                            console.print(f'''[blue]\n
+ [bold green] {movie.getTitle()}[/bold green]
+ description: [bold yellow]{movie.getDescription()}        [/bold yellow]                       
+ release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
+ average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
+ Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
+ Genres: {(" - ".join(genre_names))}
+ Ratings:[/blue]''')
+                            i = 0
+                            for ratin in ratings:
+                                i+=1
+                                description = ratin.getDescription()
+                                score = ratin.getScore()
+                                console.print(f" [bold]{i}[/bold]- {description}: {score}")
+                                print('----------------')
+            elif selected3 == admin_choices[1]:
+                movie_name= console.input("enter movie name\n")
+                for m in movies:
+                    while m.getTitle() == movie_name:
+                        console.print("Sorry ! movie already added.")
+                        movie_name= console.input("enter movie name\n")
+                        
+
+                movie_description= console.input("enter a simple description about movie\n")
+                movie_release_year= console.input("enter a release year (ex : 2025) \n")
+                while movie_release_year.isdigit() == False:
+                        console.print("Sorry ! enter correct release year")
+                        movie_release_year= console.input("enter a release year (ex : 2025) \n")
+
+                added_genres = []
+                movie_id =random.randint(100000, 999999)
+                movie_genres_input = console.input('Write movie genres (comma separated): ')
+                added_genres = [g.strip() for g in movie_genres_input.split(',')]
+
+                for genre_name in added_genres:
+                    existing_genre = next((g for g in genres if g.getName().lower() == genre_name.lower()), None)
+                    
+                    if existing_genre:
+                        added = existing_genre.addMovie(movie_id)
+                        if added:
+                            console.print(f"✅ Added movie {movie_id} to genre '{existing_genre.getName()}'")
+                        else:
+                            console.print(f"⚠️ Movie {movie_id} already in genre '{existing_genre.getName()}'")
+                    else:
+                        genre_data = {
+                            "id": random.randint(100000, 999999),
+                            "name": genre_name,
+                            "movies": [movie_id]
+                        }
+                        new_genre = GENRES.Genres.from_dict(genre_data)
+                        genres.append(new_genre)
+                        console.print(f"new genre created: '{genre_name}' and added movie {movie_id}")
+
+                console.print("[blue] Genres stored successfully! [/blue]")
+
                 
-                movie_title = console.input('Enter a movie name:')
-                movie_find=False
-                for movie in movies:
-                    if movie.getTitle() == movie_title:
-                        movie_find = True
-                        console.print("[yellow] Movie Found ! [/yellow]\n")
-                        movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
-                        
-                        try:
-                            total_score = sum(r.getScore() for r in movie_ratings)
-                            average_score = total_score / len(movie_ratings)
-                        except Exception as e:
-                            total_score =0
-                            average_score = 0
+                    
+                
+                movie_data = {
+                    "id": movie_id,
+                    "title": movie_name,
+                    "description": movie_description,
+                    "release_year": movie_release_year,
+                }
 
-                        movie_genres = [g for g in genres if g.getMovieId() == movie.getId()]
-                        genre_names = [g.getName() for g in movie_genres]
+                new_movie = MOVIE.Movie.from_dict(movie_data)
+
+                movies.append(new_movie)
+                movie_genres = movie.getGenres(genres)
+                genre_names = [g.getName() for g in movie_genres]
 
 
-                        
-                        
-                        console.print(f'''[blue]
-    Title: {movie.getTitle()}                              
-    description: [bold yellow]{movie.getDescription()}        [/bold yellow]                       
-    release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                             
-    average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
-    Genres: {(" - ".join(genre_names))}
-    Ratings: 
-    [/blue]''')
-                        i = 0
-                        for rating in ratings:
-                            i+=1
-                            description = rating.getDescription()
-                            score = rating.getScore()
-                            console.print(f"[bold]{i}[/bold]- {description}: {score}")
+                console.print(f'''[bold green]movie added successfully !
+Movie Title: {movie_name}
+Movie Description: {movie_description}
+release_year: {movie_release_year}
+genres: {(" - ".join(genre_names))}
+[/bold green]''')
+                
 
-          
+
+            elif selected3 == admin_choices[2]:
+                #Delete movie
+                pass
+
+
+            elif selected3 == admin_choices[3]:
+                #edit movie
+                pass
+
+
+            elif selected3 == admin_choices[4]:
+                #book movie for customer
+                pass
+
+            elif selected3 == admin_choices[5]:
+                #cancel a movie
+                pass 
+
+            elif selected3 == admin_choices[6]:
+                #view customer booking history
+                pass 
+ 
+            elif selected3 == admin_choices[7]:
+                #view statstics
+                pass 
+
+            elif selected3 == admin_choices[8]:
+                #smart analytics
+                pass 
+            
+
+
+
+                
+
+            
+
+
+
+            selected3 = questionary.select(" Please choose an option:",
+            choices=admin_choices,
+            use_arrow_keys=True ).ask()
+        
+        else:
             with open('admins.json','w', encoding='UTF-8') as File:
                 content = json.dumps(admins, indent=2)
                 File.write(content)
                 File.close()
                 
-            selected3 = questionary.select(" Please choose an option:",
-            choices=admin_choices,
-            use_arrow_keys=True ).ask()
+            with open('users.json', 'w', encoding='UTF-8') as file:
+                content = json.dumps([u.to_dict() for u in users], indent=2, ensure_ascii=False)
+                file.write(content)
+
+            with open('genres.json', 'w', encoding='UTF-8') as file:
+                content = json.dumps([g.to_dict() for g in genres], indent=2, ensure_ascii=False)
+                file.write(content)
+
+            with open('movies.json', 'w', encoding='UTF-8') as file:
+                content = json.dumps([m.to_dict() for m in movies], indent=2, ensure_ascii=False)
+                file.write(content)
+
+            with open('bookings.json', 'w', encoding='UTF-8') as file:
+                content = json.dumps([b.to_dict() for b in bookings], indent=2, ensure_ascii=False)
+                file.write(content)
+
+            with open('ratings.json', 'w', encoding='UTF-8') as file:
+                content = json.dumps([r.to_dict() for r in ratings], indent=2, ensure_ascii=False)
+                file.write(content)
+            
+                    
+            
           
           
         

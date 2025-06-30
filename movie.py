@@ -40,6 +40,9 @@ class Movie():
             
         }
     
+    def getGenres(self, genres):  
+        return [g for g in genres if g.hasMovie(self.__id)]
+    
     def from_dict(data):
       return Movie(data['id'], data['title'], data['description'], data['release_year'])
    
