@@ -1,20 +1,63 @@
 [
-  {
-    "id": 1,
-    "title": "Movie1",
-    "description": "test",
-    "release_year": "2020"
-  },
-  {
-    "id": 2,
-    "title": "Movie2",
-    "description": "test",
-    "release_year": "2020"
-  },
-  {
-    "id": 287684,
-    "title": "M",
-    "description": "Description",
-    "release_year": "2028"
-  }
-]
+    {
+      "id": 1,
+      "title": "Inception",
+      "description": "A thief who steals corporate secrets through dream-sharing technology.",
+      "release_year": "2010"
+    },
+    {
+      "id": 2,
+      "title": "The Dark Knight",
+      "description": "Batman battles the Joker in Gotham City.",
+      "release_year": "2008"
+    },
+    {
+      "id": 3,
+      "title": "Interstellar",
+      "description": "A team of explorers travel through a wormhole in space.",
+      "release_year": "2014"
+    },
+    {
+      "id": 4,
+      "title": "The Shawshank Redemption",
+      "description": "Two imprisoned men bond over a number of years.",
+      "release_year": "1994"
+    },
+    {
+      "id": 5,
+      "title": "Pulp Fiction",
+      "description": "The lives of two mob hitmen intertwine in Los Angeles.",
+      "release_year": "1994"
+    },
+    {
+      "id": 6,
+      "title": "The Godfather",
+      "description": "The aging patriarch of an organized crime dynasty transfers control.",
+      "release_year": "1972"
+    },
+    {
+      "id": 7,
+      "title": "The Matrix",
+      "description": "A computer hacker learns about the true nature of reality.",
+      "release_year": "1999"
+    },
+    {
+      "id": 8,
+      "title": "Fight Club",
+      "description": "An insomniac office worker and a soapmaker form an underground club.",
+      "release_year": "1999"
+    },
+    {
+      "id": 9,
+      "title": "Forrest Gump",
+      "description": "The presidencies of Kennedy and Johnson through the eyes of Forrest Gump.",
+      "release_year": "1994"
+    },
+    {
+      "id": 10,
+      "title": "Gladiator",
+      "description": "A former Roman General sets out to exact vengeance.",
+      "release_year": "2000"
+    }
+  ]
+  

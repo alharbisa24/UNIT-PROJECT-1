@@ -1,9 +1,8 @@
 
 from rich.console import Console
-from rich.syntax import Syntax
-from datetime import datetime
 import questionary
 import json
+import google.generativeai as genai
 
 import csv
 import movie as MOVIE
@@ -22,6 +21,13 @@ ratings:list= []
 genres:list= []
 bookings:list= []
 admins:list= []
+
+genai.configure(api_key="AIzaSyAUQSI2i9HibXAZkRS6Z0H_VDY1Ug8dmj8")
+model = genai.GenerativeModel('gemini-2.0-flash')
+
+
+
+
 
 try:
     with open('users.json', 'r', encoding='UTF-8') as File:
@@ -113,7 +119,42 @@ except Exception as e:
     
     
     
+def SmartSearch(user_input):
+    movie_data = ""
+    for m in movies:
+        movie_data += f"Title: {m.getTitle()}\nDescription: {m.getDescription()}\nGenres: {', '.join(g.getName() for g in m.getGenres(genres))}\n\n"
 
+    prompt = f"""
+I have the following list of movies with title, description and genres:
+
+{movie_data}
+
+Now based on the following user request, suggest the best matching movies (top 3) from the list above only. Return just the movie titles.
+
+User request: "{user_input}"
+"""  
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip().split("\n")
+    except Exception as e:
+        print("AI Error:", e)
+        return []
+
+
+def getAiRecommendations(user_input):
+    prompt = f"""
+    Recommend 5 popular movies based on the following preferences or keywords:
+    {user_input}
+
+    Please provide only the movie titles separated by commas, each movie in line.
+    """
+    
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip().split("\n")
+    except Exception as e:
+        print("AI Error:", e)
+        return []
 
 
 console = Console()
@@ -159,9 +200,10 @@ Please choose an option:
     "4) Show booking history",
     "5) Smart search for a movie (using AI)" ,
     "6) Get AI movie recommendations (using AI)",
-    "7) Smart chatbot (using AI)",
-    "8) Rate & review a movie",
-    "9) Exit",
+    "7) Summarize reviews (using AI)",
+    "8) Recommend Similar Movies (using AI)",
+    "9) Rate & review a movie",
+    "10) Exit",
 ]
 
     selected2 = questionary.select(
@@ -169,7 +211,7 @@ Please choose an option:
         choices=user_choices,
         use_arrow_keys=True 
     ).ask()
-    while selected2 != user_choices[8]:
+    while selected2 != user_choices[9]:
        
         if selected2 == user_choices[0]:
             print('----------------')
@@ -189,13 +231,13 @@ Please choose an option:
                             genre_names = [g.getName() for g in movie_genres]
 
                             console.print(f'''[blue]\n
- [bold green] {movie.getTitle()}[/bold green]
- description: [bold yellow]{movie.getDescription()}        [/bold yellow]                       
- release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
- average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
- Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
- Genres: {(" - ".join(genre_names))}
- Ratings:[/blue]''')
+[bold green] {movie.getTitle()}[/bold green]
+description: [black]{movie.getDescription()}        [/black]                       
+release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
+average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
+Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
+Genres: [black] {(" - ".join(genre_names))} [/black]
+Ratings:[/blue]''')
                             i = 0
                             for ratin in ratings:
                                 i+=1
@@ -203,7 +245,7 @@ Please choose an option:
                                 score = ratin.getScore()
                                 console.print(f" [bold]{i}[/bold]- {description}: {score}")
                                 print('----------------')
-        if selected2 == user_choices[1]:
+        elif selected2 == user_choices[1]:
             select_movie_choise = []
             for index, movie in enumerate(movies):
                 title = movie.getTitle()
@@ -284,7 +326,7 @@ seat: {selected_seat}
             
 
             
-        if selected2 == user_choices[2]:
+        elif selected2 == user_choices[2]:
             user_bookings = [b for b in bookings if b.getUserId() == isUser(user_email)]   
             if len(user_bookings) < 0:
                 console.print("[red] Sorry no bookings found.[/red]")
@@ -310,7 +352,7 @@ seat: {removed.getSeat()}
         
         
         
-        if selected2 == user_choices[3]:
+        elif selected2 == user_choices[3]:
             user_bookings = [b for b in bookings if b.getUserId() == isUser(user_email)]   
             if len(user_bookings) < 0:
                 console.print("[red] Sorry no bookings found.[/red]")
@@ -319,8 +361,50 @@ seat: {removed.getSeat()}
                 for b in user_bookings:
                     movie = findMovie(b.getMovieId())
                     console.print(f"{movie.getTitle()} - Row {b.getRow()} Seat {b.getSeat()}")
-   
-        if selected2 == user_choices[4]:
+        
+
+        elif selected2 == user_choices[4]:
+            console.print("[bold blue]\n Smart Search (using AI)[/bold blue]")
+            user_query = console.input("🔍 What are you looking for in a movie?\n> ")
+
+            result_titles = SmartSearch(user_query)
+
+            if not result_titles:
+                console.print("[red]⚠️ No matching movies found.[/red]")
+            else:
+                console.print("[bold yellow]\nAI Recommended Matches:[/bold yellow]")
+                for title in result_titles:
+                    console.print(f"- [bold]{title}[/bold]")
+
+        elif selected2 == user_choices[5]:
+            console.print("[bold blue]\n get AI Recommendations (using AI) [/bold blue]")
+            user_query = console.input(" Enter your favorite genres, actors, or keywords:\n> ")
+
+            result_titles = getAiRecommendations(user_query)
+
+            if not result_titles:
+                console.print("[red]⚠️ No matching movies found.[/red]")
+            else:
+                console.print("[bold yellow]\nAI Recommendations:[/bold yellow]")
+                for title in result_titles:
+                    console.print(f"- [bold]{title}[/bold]")
+
+
+        elif selected2 == user_choices[6]:
+            #summarize reviews 
+            pass
+
+
+
+        elif selected2 == user_choices[7]:
+            #recoommend similar movies
+            pass
+
+
+
+
+
+        elif selected2 == user_choices[8]:
             select_movie_choise = []
             user_bookings = [b for b in bookings if b.getUserId() == isUser(user_email)]   
             if len(user_bookings) > 0:
@@ -350,7 +434,7 @@ seat: {removed.getSeat()}
                 "5 ★★★★★"]).ask()
 
                 rating_number = int(rating[0])
-                console.print(f"\n✅ you rated: {rating_number} stars!")
+                console.print(f"\n you rated: {rating_number} stars!")
                 console.print("[bold green]Thanks for rating, see you again. [/bold green]")
                 rating_number = int(rating_number) 
 
@@ -421,7 +505,6 @@ elif selected == choices[1]:
     if emailFinded == False:
         console.print('[bold red] Sorry ! email not found [/bold red]')
     else:
-        console.print('\n[bold blue] Welcome back [/bold blue]')
 
         msg = console.print('''\n[bold red]ًWelcome to Movie CLI Project ! (Signed As Admin) [/bold red]ً
 Please choose an option:
@@ -436,7 +519,10 @@ Please choose an option:
     "7) View customer booking history",
     "8) View movies Statistics & Reports",
     "9) Smart Analytics & Predictions (using AI)",
-    "10) Exit",
+    "10) AI Forecast: Future Booking Predictions (using AI)",
+    "11) Movie Success Predictor (using AI)",
+    "12) Summarize reviews (using AI)",
+    "13) Exit",
 ]
 
         selected3 = questionary.select(
@@ -444,7 +530,7 @@ Please choose an option:
         choices=admin_choices,
         use_arrow_keys=True).ask()
    
-        while selected3 != admin_choices[9]:
+        while selected3 != admin_choices[12]:
             if selected3 == admin_choices[0]:
                     for movie in movies:
                         movie_bookings = [b for b in bookings if b.getMovieId() == movie.getId()]
@@ -462,13 +548,13 @@ Please choose an option:
                             genre_names = [g.getName() for g in movie_genres]
 
                             console.print(f'''[blue]\n
- [bold green] {movie.getTitle()}[/bold green]
- description: [bold yellow]{movie.getDescription()}        [/bold yellow]                       
- release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
- average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
- Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
- Genres: {(" - ".join(genre_names))}
- Ratings:[/blue]''')
+[bold green] {movie.getTitle()}[/bold green]
+description: [black]{movie.getDescription()}        [/black]                       
+release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
+average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
+Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
+Genres: [black] {(" - ".join(genre_names))} [/black]
+Ratings:[/blue]''')
                             i = 0
                             for ratin in ratings:
                                 i+=1
@@ -484,7 +570,19 @@ Please choose an option:
                         movie_name= console.input("enter movie name\n")
                         
 
-                movie_description= console.input("enter a simple description about movie\n")
+                use_ai_description = questionary.confirm("Do you want to generate the movie description using AI ?").ask()
+                if use_ai_description:
+                    try:
+                        ai_prompt = f"Write a short, professional movie description for a film titled '{movie_name}'."
+                        response = model.generate_content(ai_prompt)
+                        movie_description = response.text.strip()
+                        console.print(f"[bold green] AI-generated description:[/bold green] {movie_description}")
+                    except Exception as e:
+                        console.print("[red] Failed to generate description using AI. Please enter manually.[/red]")
+                        movie_description = console.input(" Enter movie description:\n")
+                else:
+                    movie_description = console.input("Enter movie description:\n")
+    
                 movie_release_year= console.input("enter a release year (ex : 2025) \n")
                 while movie_release_year.isdigit() == False:
                         console.print("Sorry ! enter correct release year")
@@ -501,9 +599,9 @@ Please choose an option:
                     if existing_genre:
                         added = existing_genre.addMovie(movie_id)
                         if added:
-                            console.print(f"✅ Added movie {movie_id} to genre '{existing_genre.getName()}'")
+                            console.print(f"Added movie {movie_id} to genre '{existing_genre.getName()}'")
                         else:
-                            console.print(f"⚠️ Movie {movie_id} already in genre '{existing_genre.getName()}'")
+                            console.print(f"Movie {movie_id} already in genre '{existing_genre.getName()}'")
                     else:
                         genre_data = {
                             "id": random.randint(100000, 999999),
@@ -804,6 +902,19 @@ seat: {seat}
             elif selected3 == admin_choices[8]:
                 #smart analytics using AI
                 pass 
+
+            elif selected3 == admin_choices[9]:
+                #Ai Forecast
+                pass
+
+            elif selected3 == admin_choices[10]:
+                # movie success predictor
+                pass
+
+
+            elif selected3 == admin_choices[11]:
+                #summarize reviews
+                pass
             
 
 
