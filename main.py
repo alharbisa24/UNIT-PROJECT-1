@@ -5,12 +5,16 @@ from datetime import datetime
 import questionary
 import json
 
+import csv
 import movie as MOVIE
 import rating as RATING
 import booking as BOOKING
 import genres as GENRES
 import user as USER
 import random
+import os
+import platform
+import subprocess
 
 users:list= []
 movies:list= []
@@ -47,6 +51,12 @@ def isUser(email):
     for user in users:
         if user.getEmail() == email:
             return user.getId()
+    return False
+
+def isUserById(id):
+    for user in users:
+        if user.getId() == id:
+            return user
     return False
 
 def findMovie(movieId):
@@ -232,10 +242,21 @@ Please choose an option:
                         seat_display.append("🟩")
                 print(f"{row}  {' '.join(seat_display)}")
 
-            selected_seat_row =console.input("provide a row and seat to book: (EX : A5)")
+            selected_seat_row =console.input("enter a row and seat to book: (EX : A5)")
            
-            while(len(selected_seat_row) > 2 or len(selected_seat_row) < 1):
-                selected_seat_row =console.input("provide a row and seat to book: (EX : A5)")
+            while True:
+                seat_input = console.input("enter a row and seat to book: (EX : A5) ").upper()
+                if len(seat_input) < 2 or not seat_input[1:].isdigit():
+                    console.print("[red] invalid seat (e.g., A5)[/red]")
+                    continue
+                row = seat_input[0]
+                seat = int(seat_input[1:])
+                if (row, seat) in booked_seats:
+                    console.print("[red] seat is taken.[/red]")
+                elif seat < 1 or seat > 10 or row not in "ABCDEFGHIJ":
+                    console.print("[red] seat is invalid.[/red]")
+                else:
+                    break
 
 
 
@@ -522,33 +543,266 @@ genres: {(" - ".join(genre_names))}
 
 
             elif selected3 == admin_choices[2]:
-                #Delete movie
-                pass
+                if not movies:
+                    console.print("[red]No movies to delete.[/red]")
+                else:
+                    movie_choices = [
+                        questionary.Choice(title=f"{m.getTitle()} ({m.getReleaseYear()})", value=m.getId())
+                        for m in movies
+                    ]
+                    selected_id = questionary.select(
+                        "Select a movie to delete:", choices=movie_choices
+                    ).ask()
+
+                    selected_movie = next((m for m in movies if m.getId() == selected_id), None)
+
+                    if selected_movie:
+                        confirm = questionary.confirm(f"Are you sure you want to delete '{selected_movie.getTitle()}'?").ask()
+                        if confirm:
+                            movies.remove(selected_movie)
+
+                            ratings = [r for r in ratings if r.getMovieId() != selected_movie.getId()]
+
+                            bookings = [b for b in bookings if b.getMovieId() != selected_movie.getId()]
+
+                            for g in genres:
+                                g.removeMovie(selected_movie.getId())
+
+                            console.print(f"[bold red]Movie '{selected_movie.getTitle()}' deleted.[/bold red]")
 
 
             elif selected3 == admin_choices[3]:
-                #edit movie
-                pass
+                if not movies:
+                    console.print("[red]No movies to edit.[/red]")
+                else:
+                    movie_choices = [
+                        questionary.Choice(title=f"{m.getTitle()} ({m.getReleaseYear()})", value=m.getId())
+                        for m in movies
+                    ]
+                    selected_id = questionary.select(
+                        "Select a movie to edit:", choices=movie_choices
+                    ).ask()
+
+                    selected_movie = next((m for m in movies if m.getId() == selected_id), None)
+
+                    if selected_movie:
+                        new_title = console.input(f"Enter new title [{selected_movie.getTitle()}]: ") or selected_movie.getTitle()
+                        new_description = console.input(f"Enter new description [{selected_movie.getDescription()}]: ") or selected_movie.getDescription()
+                        new_year = console.input(f"Enter new release year [{selected_movie.getReleaseYear()}]: ") or selected_movie.getReleaseYear()
+
+                        while new_year.isdigit() == False:
+                            console.print("[red]Please enter a valid year[/red]")
+                            new_year = console.input("Enter new release year: ")
+
+                        selected_movie.setTitle(new_title)
+                        selected_movie.setDescription(new_description)
+                        selected_movie.setReleaseYear(new_year)
+                        console.print(f"[blue]current genres: {', '.join([g.getName() for g in selected_movie.getGenres(genres)])}[/blue]")
+
+                        genre_input = console.input("enter new genres (write , to seprate): ")
+                        new_genre_names = [g.strip().lower() for g in genre_input.split(',') if g.strip()]
+                        
+
+
+                        for g in genres:
+                            g.removeMovie(selected_movie.getId())
+                            for genre_name in new_genre_names:
+                                genre_obj = next((g for g in genres if g.getName().lower() == genre_name), None)
+
+                                if genre_obj:
+                                    genre_obj.addMovie(selected_movie.getId())
+                                else:
+                                    new_genre = GENRES.Genres(
+                                    id=random.randint(100000, 999999),
+                                    name=genre_name,
+                                    movies=[selected_movie.getId()]
+                                    )
+                                    genres.append(new_genre)
+
+                        console.print(f"[bold green] Movie updated successfully![/bold green]")
+
 
 
             elif selected3 == admin_choices[4]:
-                #book movie for customer
-                pass
+                if not users or not movies:
+                    console.print("[red] sorry ! no users or movies found[/red]")
+                else:
+                    user_choices = [questionary.Choice(title=u.getEmail(), value=u.getId()) for u in users]
+                    selected_user_id = questionary.select(" select user: ", choices=user_choices).ask()
+
+                    select_movie_choise = []
+                    for i, movie in enumerate(movies):
+                        title = movie.getTitle()
+                        desc = movie.getDescription()
+                        year = movie.getReleaseYear()
+                                
+                        movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
+                        try:
+                            total_score = sum(r.getScore() for r in movie_ratings)
+                            average_score = total_score / len(movie_ratings)
+                        except Exception as e:
+                            total_score =0
+                            average_score = 0
+
+                        choice_line = f"{title} | {year} - Rating : {average_score} \n Description: {desc}"
+                        select_movie_choise.append(
+                        questionary.Choice(title=choice_line, value=i)
+                        )
+
+
+                    selected_movie_index = questionary.select("choose one of the following movies:",
+                    choices=select_movie_choise,use_arrow_keys=True).ask()
+                    selected_movie = movies[selected_movie_index]
+
+                    booked_seats = [(b.getRow(), b.getSeat()) for b in bookings if b.getMovieId() == selected_movie_index]
+                    for row in range(10):
+                        row_letter = chr(65 + row)
+                        seat_display = []
+                        for seat in range(1, 11):
+                            if (row_letter, seat) in booked_seats:
+                                seat_display.append("🚫")
+                            else:
+                                seat_display.append("🟩")
+                        print(f"{row_letter}  {' '.join(seat_display)}")
+
+                    while True:
+                        seat_input = console.input("enter a row and seat to book: (EX : A5) ").upper()
+                        if len(seat_input) < 2 or not seat_input[1:].isdigit():
+                            console.print("[red] invalid seat (e.g., A5)[/red]")
+                            continue
+                        row = seat_input[0]
+                        seat = int(seat_input[1:])
+                        if (row, seat) in booked_seats:
+                            console.print("[red] Sorry ! seat is taken.[/red]")
+                        elif seat < 1 or seat > 10 or row not in "ABCDEFGHIJ":
+                            console.print("[red] seat is invalid.[/red]")
+                        else:
+                            break
+
+                    new_booking = BOOKING.Booking.from_dict({
+                        "id": random.randint(100000, 999999),
+                        "movie_id": selected_movie_index,
+                        "user_id": selected_user_id,
+                        "row": row,
+                        "seat": seat
+                    })
+                    
+                    bookings.append(new_booking)
+                    console.print(f'''[bold green]Booked successfully !
+row: {row}
+seat: {seat}
+[/bold green]''')
+
 
             elif selected3 == admin_choices[5]:
-                #cancel a movie
-                pass 
+                if not users or not bookings:
+                    console.print("[red] sorry ! no users or movies found[/red]")
+                else:
+                    user_choices = [questionary.Choice(title=u.getEmail(), value=u.getId()) for u in users]
+                    selected_user_id = questionary.select("Select user: ", choices=user_choices).ask()
+
+                    user_bookings = [b for b in bookings if b.getUserId() == selected_user_id]
+                    if not user_bookings:
+                        console.print("[red] sorry ! there is no bookings for selected user[/red]")
+                    else:
+                        booking_choices = []
+                        for b in user_bookings:
+                            movie = findMovie(b.getMovieId()) 
+                            title = f"{movie.getTitle()} - Row {b.getRow()} Seat {b.getSeat()}"
+                            booking_choices.append(questionary.Choice(title=title, value=b.getId()))
+
+                        selected_booking_id = questionary.select("select a booking:", choices=booking_choices).ask()
+
+                        for i, b in enumerate(bookings):
+                            if b.getId() == selected_booking_id:
+                                removed = bookings.pop(i)
+                                console.print(f"[bold red] booking canceled: {removed.getRow()}{removed.getSeat()}[/bold red]")
+                                break
 
             elif selected3 == admin_choices[6]:
-                #view customer booking history
-                pass 
+                if not users or not bookings:
+                    console.print("[red] sorry ! no users or movies found[/red]")
+                else:
+                    user_choices = [questionary.Choice(title=u.getEmail(), value=u.getId()) for u in users]
+                    selected_user_id = questionary.select("Select user: ", choices=user_choices).ask()
+
+                    user_bookings = [b for b in bookings if b.getUserId() == selected_user_id]
+
+                    if not user_bookings:
+                        console.print("[red] sorry ! there is no bookings for selected user[/red]")
+                    else:
+                        user_selected_email = isUserById(selected_user_id)
+
+                        console.print(f"\n[bold blue] booking history for user: {user_selected_email.getEmail()}[/bold blue]\n")
+                        for i, b in enumerate(user_bookings, start=1):
+                            movie = findMovie(b.getMovieId()) 
+                            console.print(f"""
+[green]#{i}[/green]
+🎬 Movie: [bold]{movie.getTitle()}[/bold]
+🪑 Seat: Row {b.getRow()} - Seat {b.getSeat()}
+            """)
+
  
             elif selected3 == admin_choices[7]:
-                #view statstics
-                pass 
+                if not movies:
+                    console.print("[red] no movies found.[/red]")
+                else:
+                    console.print("[bold cyan]\n Movies Statistics & Reports[/bold cyan]\n")
+
+                    top_rated_movie = None
+                    highest_avg_rating = 0
+
+                    for movie in movies:
+                        movie_title = movie.getTitle()
+                        movie_id = movie.getId()
+
+                        movie_bookings = [b for b in bookings if b.getMovieId() == movie_id]
+                        booked_seats = len(movie_bookings)
+                        remaining_seats = 100 - booked_seats
+
+                        movie_ratings = [r for r in ratings if r.getMovieId() == movie_id]
+                        if len(movie_ratings) > 0:
+                            avg_rating = sum(r.getScore() for r in movie_ratings) / len(movie_ratings)
+                        else:
+                            avg_rating = 0
+                        
+                        
+                        if avg_rating > highest_avg_rating:
+                            highest_avg_rating = avg_rating
+                            top_rated_movie = movie
+
+                        console.print(f"""[bold]{movie_title}[/bold]
+[green]Booked Seats:[/green] {booked_seats}
+[yellow]Available Seats:[/yellow] {remaining_seats}
+[magenta]Average Rating:[/magenta] {round(avg_rating, 2)} ★
+            ------------------------""")
+
+                    if top_rated_movie:
+                        console.print(f"\n[bold yellow]Top Rated Movie:[/bold yellow] [green]{top_rated_movie.getTitle()}[/green] with [yellow]{round(highest_avg_rating, 2)}[/yellow] ★ \n")
+                    export_choice = questionary.confirm("export report as .csv file ?").ask()
+
+                    if export_choice:
+                        with open('movie_report.csv', mode='w', newline='', encoding='utf-8') as file:
+                            writer = csv.writer(file)
+                            writer.writerow(['Movie Title', 'Number of Booked Seats', 'Number of Available Seats', 'Average Rating'])
+
+                            for movie in movies:
+                                movie_title = movie.getTitle()
+                                movie_id = movie.getId()
+                                movie_bookings = [b for b in bookings if b.getMovieId() == movie_id]
+                                booked_seats = len(movie_bookings)
+                                remaining_seats = 100 - booked_seats
+                                movie_ratings = [r for r in ratings if r.getMovieId() == movie_id]
+                                avg_rating = sum(r.getScore() for r in movie_ratings) / len(movie_ratings) if movie_ratings else 0
+
+                                writer.writerow([movie_title, booked_seats, remaining_seats, round(avg_rating, 2)])
+                        system = platform.system()
+                        subprocess.run(['open', 'movie_report.csv'])
+
+                        console.print("[bold green]Report generated successfully! [/bold green]")
 
             elif selected3 == admin_choices[8]:
-                #smart analytics
+                #smart analytics using AI
                 pass 
             
 

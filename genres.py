@@ -29,6 +29,12 @@ class Genres():
             return True
         return False
     
+    def removeMovie(self, movie_id):
+        if movie_id in self.__movies:
+            self.__movies.remove(movie_id)
+            return True
+        return False
+    
     def hasMovie(self, movie_id):
         return movie_id in self.__movies
     
