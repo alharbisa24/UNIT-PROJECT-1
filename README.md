@@ -1,32 +1,37 @@
 # UNIT-PROJECT-1
 
 
+## Movie CLI Manager :
 
-## Based on what you’ve learned until now , create a project of your choosing (impress us with your imagination) . This project must at least satisfy the following minimum requirements :
+#### Overview : An system that allow users to book a movies, show avaliable movies, using AI to get recommendations, summarize reviews, and there is admins who can manage users account, movies, bookings,reviews, show statistics using AI tools to analyze.
 
-- Must be interactive on CLI.
-- Use your coding skills in Python accurately.
-- Organize Your Code into modules & (or packages)
-- Use git & Github to track changes in your code.
-
-## Example Project :  An online Grocery Store :
-
-#### Overview : An online store that sells fruits to customers. This online store has 2 main users. The customer and the manager of the store . Each one of them should be able to do the following tasks for the store to function properly . 
 
 ### Features & User Stories
-#### As a customer I should be able to do the following :
-- Browse  Products . 
-- View the product info (summary, specs, price, quantity , etc.)
-- Search for Products.
-- Get recommendations for my next purchase based on my purchase history.
-- Add Products to the shopping cart .
-- Remove a product from the shopping cart.
-- List the products in my shopping cart. 
-- Continue to checkout . 
-- Fill in my address for delivery.
-- Get receipt of my purchases.
-- Check delivery status . 
+#### As a user I should be able to do the following :
+ 1) Show available movies
+ 2) Book a movie
+ 3) Cancel a book
+ 4) Show booking history
+ 5) Get AI movie recommendations (using AI)
+ 6) Summarize reviews (using AI)
+ 7) Recommend Similar Movies (using AI)
+ 8) Rate & review a movie
 
+#### As a Admin I should be able to do the following :
+1) Show available movies
+2) Delete customer account
+3) Add new movie
+4) Delete a movie
+5) Edit existing movie information
+6) Book a movie for customer
+7) Cancel a movie booking for customer
+8) View customer booking history
+9) View movies Statistics & Reports
+10) Smart Analytics (using AI)
+11) AI Forecasting & Predictions (using AI)
+12) Summarize reviews (using AI)
+13) Add Admin account
+14) Delete Admin account
 
 
 #### Usage :
@@ -39,7 +44,3 @@
  - and so on...
 
 
-### For your project. Edit this README.md file to include your own project name,  overview, user stories, and usage. 
-
-### NOTE: before submitting the final project, please do the following command:
-`pip freeze > requirements.txt` to enable use to know & use the packages used in your project.

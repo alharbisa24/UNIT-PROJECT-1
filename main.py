@@ -3,6 +3,7 @@ from rich.console import Console
 import questionary
 import json
 import google.generativeai as genai
+from halo import Halo
 
 import csv
 import movie as MOVIE
@@ -135,29 +136,6 @@ except Exception as e:
 
     
 
-
-    
-    
-def SmartSearch(user_input):
-    movie_data = ""
-    for m in movies:
-        movie_data += f"Title: {m.getTitle()}\nDescription: {m.getDescription()}\nGenres: {', '.join(g.getName() for g in m.getGenres(genres))}\n\n"
-
-    prompt = f"""
-I have the following list of movies with title, description and genres:
-
-{movie_data}
-
-Now based on the following user request, suggest the best matching movies (top 3) from the list above only. Return just the movie titles.
-
-User request: "{user_input}"
-"""  
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip().split("\n")
-    except Exception as e:
-        print("AI Error:", e)
-        return []
 
 
 def getAiRecommendations(user_input):
@@ -328,7 +306,7 @@ console = Console()
 
 
 first_msg = console.print('''
-[bold green]ًWelcome to Movie CLI Project ![/bold green]ً
+[bold green]ًWelcome to Movie CLI Manager ![/bold green]ً
  [bold blue]Sign in [/bold blue]
     
 ''')
@@ -368,7 +346,7 @@ if selected == choices[0]:
 
             
    
-    msg = console.print('''\n[bold green]ًWelcome to Movie CLI Project ![/bold green]ً
+    msg = console.print('''\n[bold green]ًWelcome to Movie CLI Manager ![/bold green]ً
             
 Please choose an option:
 ''')
@@ -376,12 +354,12 @@ Please choose an option:
     "1) Show available movies",
     "2) Book a movie",
     "3) Cancel a book",
-    "4) Show booking history",
+    "4) Show bookings",
     "5) Get AI movie recommendations (using AI)" ,
     "6) Summarize reviews (using AI)",
     "7) Recommend Similar Movies (using AI)",
     "8) Rate & review a movie",
-    "10) Exit",
+    "9) Exit",
 ]
 
     selected2 = questionary.select(
@@ -410,9 +388,9 @@ Please choose an option:
 
                             console.print(f'''[blue]\n
 [bold green] {movie.getTitle()}[/bold green]
-description: [black]{movie.getDescription()}        [/black]                       
-release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
-average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
+Description: [black]{movie.getDescription()}        [/black]                       
+Release Year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
+Average Ratings : [bold yellow]{round(average_score)} ★ [/bold yellow]       
 Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
 Genres: [black] {(" - ".join(genre_names))} [/black]
 Ratings:[/blue]''')
@@ -439,7 +417,7 @@ Ratings:[/blue]''')
                     total_score =0
                     average_score = 0
 
-                choice_line = f"{title} | {year} - Rating : {average_score}"
+                choice_line = f"{title} | {year} - Rating : {round(average_score)}"
                 select_movie_choise.append(
                 questionary.Choice(title=choice_line, value=index)
                 )
@@ -547,11 +525,14 @@ seat: {removed.getSeat()}
         elif selected2 == user_choices[4]:
             console.print("[bold blue]\n get AI Recommendations (using AI) [/bold blue]")
             user_query = console.input(" Enter your favorite genres, actors, or keywords:\n> ")
-
+            spinner = Halo(text='Loading', spinner='dots', interval=700)
+            spinner.start()
+            spinner.stop() 
             result_titles = getAiRecommendations(user_query)
+            
 
             if not result_titles:
-                console.print("[red]⚠️ No matching movies found.[/red]")
+                console.print("[red]No matching movies found.[/red]")
             else:
                 console.print("[bold yellow]\nAI Recommendations:[/bold yellow]")
                 for title in result_titles:
@@ -574,8 +555,10 @@ seat: {removed.getSeat()}
             selected_movie_index = questionary.select("choose one of the following movies:",
             choices=select_movie_choise,use_arrow_keys=True).ask()
             selected_movie = next((m for m in movies if m.getId() == selected_movie_index), None)
+            spinner = Halo(text='Loading', spinner='dots', interval=700)
+            spinner.start()
+            spinner.stop() 
             summary = SummarizeMovie(selected_movie.getId(),selected_movie.getTitle())
-
             console.print(f"\n[bold blue]Summary of Reviews for {selected_movie.getTitle()}[/bold blue]:")
             console.print(summary[0])
 
@@ -598,6 +581,9 @@ seat: {removed.getSeat()}
             selected_movie_index = questionary.select("choose one of the following movies:",
             choices=select_movie_choise,use_arrow_keys=True).ask()
             selected_movie = next((m for m in movies if m.getId() == selected_movie_index), None)
+            spinner = Halo(text='Loading', spinner='dots', interval=700)
+            spinner.start()
+            spinner.stop() 
             similar_movies = getSimilarMovies(selected_movie.getTitle())
             console.print(f"\n[bold blue]Similar movies for {selected_movie.getTitle()}[/bold blue]:")
             for movie_line in similar_movies:
@@ -710,7 +696,7 @@ elif selected == choices[1]:
             console.print('[bold green]ً welcome back ! [/bold green]')
             
                 
-            msg = console.print('''\n[bold green]ًWelcome to Movie CLI Project ! (Signed As Admin) [/bold green]ً
+            msg = console.print('''\n[bold green]ًWelcome to Movie CLI Manager ! (Signed As Admin) [/bold green]ً
 Please choose an option:
 ''')
         admin_choices = [
@@ -755,9 +741,9 @@ Please choose an option:
 
                             console.print(f'''[blue]\n
 [bold green] {movie.getTitle()}[/bold green]
-description: [black]{movie.getDescription()}        [/black]                       
-release_year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
-average_ratings : [bold yellow]{average_score} ★ [/bold yellow]       
+Description: [black]{movie.getDescription()}        [/black]                       
+Release Year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
+Average Ratings : [bold yellow]{round(average_score)} ★ [/bold yellow]       
 Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
 Genres: [black] {(" - ".join(genre_names))} [/black]
 Ratings:[/blue]''')
@@ -813,11 +799,18 @@ Ratings:[/blue]''')
 
                 use_ai_description = questionary.confirm("Do you want to generate the movie description using AI ?").ask()
                 if use_ai_description:
+                    spinner = Halo(text='Loading', spinner='dots')
+                    spinner.start()
                     try:
                         ai_prompt = f"Write a short, professional movie description for a film titled '{movie_name}'."
                         response = model.generate_content(ai_prompt)
                         movie_description = response.text.strip()
+                        spinner.stop()
                         console.print(f"[bold green] AI-generated description:[/bold green] {movie_description}")
+                        approve_ai_description = questionary.confirm("is a generated AI description well ?").ask()
+                        if not approve_ai_description:
+                            movie_description = console.input(" Enter movie description:\n")
+
                     except Exception as e:
                         console.print("[red] Failed to generate description using AI. Please enter manually.[/red]")
                         movie_description = console.input(" Enter movie description:\n")
@@ -983,7 +976,7 @@ genres: {(" - ".join(genre_names))}
                             total_score =0
                             average_score = 0
 
-                        choice_line = f"{title} | {year} - Rating : {average_score} \n Description: {desc}"
+                        choice_line = f"{title} | {year} - Rating : {round(average_score)}"
                         select_movie_choise.append(
                         questionary.Choice(title=choice_line, value=i)
                         )
@@ -1142,13 +1135,22 @@ seat: {seat}
 
             elif selected3 == admin_choices[9]:
                 console.print("[blue]🔍 Generating smart analytics...[/blue]\n")
+                spinner = Halo(text='Loading', spinner='dots', interval=700)
+                spinner.start()
+                spinner.stop() 
                 SmartAnalytics()
                 print('\n')
                 
+                
 
             elif selected3 == admin_choices[10]:
-                console.print("[blue]🔍 Generating Ai Forecast analytics...[/blue]\n")
-                AIForecast()
+                console.print("[blue]🔍 Generating AI Forecast analytics...[/blue]\n")
+                spinner = Halo(text='Loading', spinner='dots', interval=700)
+                spinner.start()
+                spinner.stop() 
+                AIForecast() 
+
+                
                 print('\n')
 
             elif selected3 == admin_choices[11]:
@@ -1167,7 +1169,10 @@ seat: {seat}
                 selected_movie_index = questionary.select("choose one of the following movies:",
                 choices=select_movie_choise,use_arrow_keys=True).ask()
                 selected_movie = next((m for m in movies if m.getId() == selected_movie_index), None)
+                spinner = Halo(text='Loading', spinner='dots')
+                spinner.start()
                 summary = SummarizeMovie(selected_movie.getId(),selected_movie.getTitle())
+                spinner.stop()
 
                 console.print(f"\n[bold blue]Summary of Reviews for {selected_movie.getTitle()}[/bold blue]:")
                 console.print(summary[0])
@@ -1181,7 +1186,7 @@ seat: {seat}
 
                 existing_admin = next((a for a in admins if a.getUsername().lower() == admin_username.lower()), None)
                 if existing_admin:
-                    console.print("[red]Sorry ! email already exists.[/red]")
+                    console.print("[red]Sorry ! username already exists.[/red]")
                 else:
                     admin_password = console.input("Enter a password: ")
 
@@ -1216,7 +1221,7 @@ seat: {seat}
                         if confirm:
                             admins.remove(selected_admin)
 
-                            console.print(f"[bold red]Admin '{selected_admin.getEmail()}' deleted.[/bold red]")
+                            console.print(f"[bold red]Admin '{selected_admin.getUsername()}' deleted.[/bold red]")
 
                 
                 
