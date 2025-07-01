@@ -11,7 +11,6 @@ import booking as BOOKING
 import genres as GENRES
 import user as USER
 import random
-import os
 import platform
 import subprocess
 
@@ -156,6 +155,45 @@ def getAiRecommendations(user_input):
         print("AI Error:", e)
         return []
 
+def SummarizeMovie(movie_id, movie_title):
+    movie_reviews = [
+        f"{r.getDescription()}: {r.getScore()} stars"
+        for r in ratings if r.getMovieId() == movie_id
+    ]
+    if not movie_reviews:
+        return "No reviews available to summarize."
+
+    prompt = f"""Summarize the following user ratings and reviews for the movie "{movie_title}":
+{chr(10).join(movie_reviews)}
+Highlight common opinions, praise, and criticism. Be concise."""
+
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip().split("\n")
+    except Exception as e:
+        print("AI Error:", e)
+        return []
+
+
+def getSimilarMovies( movie_title):
+    movie_genres = movie.getGenres(genres)
+    genre_names = [g.getName() for g in movie_genres]
+
+ 
+
+    prompt = f"""
+    List 10 movies similar to "{movie_title}" based on these genres: {", ".join(genre_names)}.
+    Only return movie titles and release years. Format them exactly like this:
+    - Movie Title (Year)
+    Do not include any introduction or explanation.
+    """
+    try:
+        response = model.generate_content(prompt)
+        print(response.text.strip().split("\n"))
+        return response.text.strip().split("\n")
+    except Exception as e:
+        print("AI Error:", e)
+        return []
 
 console = Console()
 
@@ -239,7 +277,8 @@ Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]
 Genres: [black] {(" - ".join(genre_names))} [/black]
 Ratings:[/blue]''')
                             i = 0
-                            for ratin in ratings:
+                            movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
+                            for ratin in movie_ratings:
                                 i+=1
                                 description = ratin.getDescription()
                                 score = ratin.getScore()
@@ -260,7 +299,7 @@ Ratings:[/blue]''')
                     total_score =0
                     average_score = 0
 
-                choice_line = f"{title} | {year} - Rating : {average_score} \n Description: {desc}"
+                choice_line = f"{title} | {year} - Rating : {average_score}"
                 select_movie_choise.append(
                 questionary.Choice(title=choice_line, value=index)
                 )
@@ -270,59 +309,60 @@ Ratings:[/blue]''')
             choices=select_movie_choise,use_arrow_keys=True).ask()
 
             selected_movie = movies[selected_movie_index]
-            console.print("\n            Screen  \n")
-            console.print("   1  2  3  4  5  6  7  8  9  10 ")
-           
-            booked_seats = [(b.getRow(), b.getSeat()) for b in bookings if b.getMovieId() == selected_movie.getId()]    
-            for row in range(10):
-                row = chr(65 + row)
-                seat_display = []
-                for seat in range(1, 11): 
-                    if (row, seat) in booked_seats:
-                        seat_display.append("🚫")
-                    else:
-                        seat_display.append("🟩")
-                print(f"{row}  {' '.join(seat_display)}")
-
-            selected_seat_row =console.input("enter a row and seat to book: (EX : A5)")
-           
-            while True:
-                seat_input = console.input("enter a row and seat to book: (EX : A5) ").upper()
-                if len(seat_input) < 2 or not seat_input[1:].isdigit():
-                    console.print("[red] invalid seat (e.g., A5)[/red]")
-                    continue
-                row = seat_input[0]
-                seat = int(seat_input[1:])
-                if (row, seat) in booked_seats:
-                    console.print("[red] seat is taken.[/red]")
-                elif seat < 1 or seat > 10 or row not in "ABCDEFGHIJ":
-                    console.print("[red] seat is invalid.[/red]")
-                else:
-                    break
-
-
-
-            selected_row = selected_seat_row[0]
-            selected_seat = int(selected_seat_row[1:])
-            if (selected_row, selected_seat) in booked_seats:
-                console.print(f"[red] Sorry its already booked![/red]")
-                selected_seat_row =console.input("provide a row and seat to book: (EX : A5)")
-
-
-            booked_seats = [(b.getRow(), b.getSeat()) for b in bookings if b.getMovieId() == selected_movie.getId() and b.getUserId() == isUser(user_email)]   
+            user_booked_seats = [(b.getRow(), b.getSeat()) for b in bookings if b.getMovieId() == selected_movie.getId() and b.getUserId() == isUser(user_email)]   
             
-            if len(booked_seats) > 0:
-                    console.print("Sorry ! you already book for this movie before.")
-                   
+            if len(user_booked_seats) > 0:
+                    console.print("[red]Sorry ! you already book for this movie before. [/red]")
             else:
-                new_booking = BOOKING.Booking(random.randint(100000, 999999),selected_movie.getId(),isUser(user_email),selected_row,selected_seat)
-                bookings.append(new_booking)
-                console.print(f'''[bold green]Booked successfully !
-Movie Title: {selected_movie.getTitle()}
-email: {user_email}
-row: {selected_row}
-seat: {selected_seat}
-[/bold green]''')
+                   
+                console.print("\n            Screen  \n")
+                console.print("   1  2  3  4  5  6  7  8  9  10 ")
+            
+                booked_seats = [(b.getRow(), b.getSeat()) for b in bookings if b.getMovieId() == selected_movie.getId()]    
+                for row in range(10):
+                    row = chr(65 + row)
+                    seat_display = []
+                    for seat in range(1, 11): 
+                        if (row, seat) in booked_seats:
+                            seat_display.append("🚫")
+                        else:
+                            seat_display.append("🟩")
+                    print(f"{row}  {' '.join(seat_display)}")
+
+            
+                while True:
+                    seat_input = console.input("enter a row and seat to book: (EX : A5) ").upper()
+                    if len(seat_input) < 2 or not seat_input[1:].isdigit():
+                        console.print("[red] invalid seat (e.g., A5)[/red]")
+                        continue
+                    row = seat_input[0]
+                    seat = int(seat_input[1:])
+                    if (row, seat) in booked_seats:
+                        console.print("[red] seat is taken.[/red]")
+                    elif seat < 1 or seat > 10 or row not in "ABCDEFGHIJ":
+                        console.print("[red] seat is invalid.[/red]")
+                    else:
+                        break
+
+
+
+                selected_row = seat_input[0]
+                selected_seat = int(seat_input[1:])
+                if (selected_row, selected_seat) in booked_seats:
+                    console.print(f"[red] Sorry its already booked![/red]")
+                    seat_input =console.input("provide a row and seat to book: (EX : A5)")
+
+
+        
+                else:
+                    new_booking = BOOKING.Booking(random.randint(100000, 999999),selected_movie.getId(),isUser(user_email),selected_row,selected_seat)
+                    bookings.append(new_booking)
+                    console.print(f'''[bold green]Booked successfully !
+    Movie Title: {selected_movie.getTitle()}
+    email: {user_email}
+    row: {selected_row}
+    seat: {selected_seat}
+    [/bold green]''')
             
 
             
@@ -391,14 +431,51 @@ seat: {removed.getSeat()}
 
 
         elif selected2 == user_choices[6]:
-            #summarize reviews 
-            pass
+            select_movie_choise = []
+            for movie in movies:
+                title = movie.getTitle()
+                desc = movie.getDescription()
+                year = movie.getReleaseYear()
+
+
+                choice_line = f"{title} | {desc} - {year} "
+                select_movie_choise.append(
+                questionary.Choice(title=choice_line, value=movie.getId()))
+
+
+            selected_movie_index = questionary.select("choose one of the following movies:",
+            choices=select_movie_choise,use_arrow_keys=True).ask()
+            selected_movie = next((m for m in movies if m.getId() == selected_movie_index), None)
+            summary = SummarizeMovie(selected_movie.getId(),selected_movie.getTitle())
+
+            console.print(f"\n[bold blue]Summary of Reviews for {selected_movie.getTitle()}[/bold blue]:")
+            console.print(summary[0])
+
+
 
 
 
         elif selected2 == user_choices[7]:
-            #recoommend similar movies
-            pass
+            select_movie_choise = []
+            for movie in movies:
+                title = movie.getTitle()
+                desc = movie.getDescription()
+                year = movie.getReleaseYear()
+
+
+                choice_line = f"{title} | {desc} - {year} "
+                select_movie_choise.append(questionary.Choice(title=choice_line, value=movie.getId()))
+
+
+            selected_movie_index = questionary.select("choose one of the following movies:",
+            choices=select_movie_choise,use_arrow_keys=True).ask()
+            selected_movie = next((m for m in movies if m.getId() == selected_movie_index), None)
+            similar_movies = getSimilarMovies(selected_movie.getTitle())
+            console.print(f"\n[bold blue]Similar movies for {selected_movie.getTitle()}[/bold blue]:")
+            for movie_line in similar_movies:
+                print(movie_line)
+
+
 
 
 
@@ -556,7 +633,8 @@ Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]
 Genres: [black] {(" - ".join(genre_names))} [/black]
 Ratings:[/blue]''')
                             i = 0
-                            for ratin in ratings:
+                            movie_ratings = [r for r in ratings if r.getMovieId() == movie.getId()]
+                            for ratin in movie_ratings:
                                 i+=1
                                 description = ratin.getDescription()
                                 score = ratin.getScore()
@@ -815,7 +893,7 @@ seat: {seat}
                             if b.getId() == selected_booking_id:
                                 removed = bookings.pop(i)
                                 console.print(f"[bold red] booking canceled: {removed.getRow()}{removed.getSeat()}[/bold red]")
-                                break
+                                continue
 
             elif selected3 == admin_choices[6]:
                 if not users or not bookings:
@@ -913,8 +991,26 @@ seat: {seat}
 
 
             elif selected3 == admin_choices[11]:
-                #summarize reviews
-                pass
+                select_movie_choise = []
+                for movie in movies:
+                    title = movie.getTitle()
+                    desc = movie.getDescription()
+                    year = movie.getReleaseYear()
+
+
+                    choice_line = f"{title} | {desc} - {year} "
+                    select_movie_choise.append(
+                    questionary.Choice(title=choice_line, value=movie.getId()))
+
+
+                selected_movie_index = questionary.select("choose one of the following movies:",
+                choices=select_movie_choise,use_arrow_keys=True).ask()
+                selected_movie = next((m for m in movies if m.getId() == selected_movie_index), None)
+                summary = SummarizeMovie(selected_movie.getId(),selected_movie.getTitle())
+
+                console.print(f"\n[bold blue]Summary of Reviews for {selected_movie.getTitle()}[/bold blue]:")
+                console.print(summary[0])
+                
             
 
 
