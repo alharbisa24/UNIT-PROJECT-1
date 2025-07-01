@@ -377,11 +377,10 @@ Please choose an option:
     "2) Book a movie",
     "3) Cancel a book",
     "4) Show booking history",
-    "5) Smart search for a movie (using AI)" ,
-    "6) Get AI movie recommendations (using AI)",
-    "7) Summarize reviews (using AI)",
-    "8) Recommend Similar Movies (using AI)",
-    "9) Rate & review a movie",
+    "5) Get AI movie recommendations (using AI)" ,
+    "6) Summarize reviews (using AI)",
+    "7) Recommend Similar Movies (using AI)",
+    "8) Rate & review a movie",
     "10) Exit",
 ]
 
@@ -390,7 +389,7 @@ Please choose an option:
         choices=user_choices,
         use_arrow_keys=True 
     ).ask()
-    while selected2 != user_choices[9]:
+    while selected2 != user_choices[8]:
        
         if selected2 == user_choices[0]:
             print('----------------')
@@ -544,20 +543,8 @@ seat: {removed.getSeat()}
                     console.print(f"{movie.getTitle()} - Row {b.getRow()} Seat {b.getSeat()}")
         
 
+
         elif selected2 == user_choices[4]:
-            console.print("[bold blue]\n Smart Search (using AI)[/bold blue]")
-            user_query = console.input("🔍 What are you looking for in a movie?\n> ")
-
-            result_titles = SmartSearch(user_query)
-
-            if not result_titles:
-                console.print("[red]⚠️ No matching movies found.[/red]")
-            else:
-                console.print("[bold yellow]\nAI Recommended Matches:[/bold yellow]")
-                for title in result_titles:
-                    console.print(f"- [bold]{title}[/bold]")
-
-        elif selected2 == user_choices[5]:
             console.print("[bold blue]\n get AI Recommendations (using AI) [/bold blue]")
             user_query = console.input(" Enter your favorite genres, actors, or keywords:\n> ")
 
@@ -571,7 +558,7 @@ seat: {removed.getSeat()}
                     console.print(f"- [bold]{title}[/bold]")
 
 
-        elif selected2 == user_choices[6]:
+        elif selected2 == user_choices[5]:
             select_movie_choise = []
             for movie in movies:
                 title = movie.getTitle()
@@ -596,7 +583,7 @@ seat: {removed.getSeat()}
 
 
 
-        elif selected2 == user_choices[7]:
+        elif selected2 == user_choices[6]:
             select_movie_choise = []
             for movie in movies:
                 title = movie.getTitle()
@@ -622,7 +609,7 @@ seat: {removed.getSeat()}
 
 
 
-        elif selected2 == user_choices[8]:
+        elif selected2 == user_choices[7]:
             select_movie_choise = []
             user_bookings = [b for b in bookings if b.getUserId() == isUser(user_email)]   
             if len(user_bookings) > 0:

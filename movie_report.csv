@@ -1,4 +1,11 @@
-Movie Title,Booked Seats,Available Seats,Average Rating
-Movie1,1,99,5.0
-Movie2,2,98,3.0
-M,0,100,0
+Movie Title,Number of Booked Seats,Number of Available Seats,Average Rating
+Inception,1,99,4.67
+The Dark Knight,2,98,4.67
+Interstellar,0,100,4.33
+The Shawshank Redemption,0,100,4.67
+Pulp Fiction,0,100,4.33
+The Godfather,0,100,5.0
+The Matrix,0,100,4.33
+Fight Club,0,100,4.33
+Forrest Gump,0,100,5.0
+Gladiator,0,100,4.33
