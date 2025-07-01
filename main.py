@@ -10,6 +10,7 @@ import rating as RATING
 import booking as BOOKING
 import genres as GENRES
 import user as USER
+import admins as ADMINS
 import random
 import platform
 import subprocess
@@ -51,6 +52,17 @@ try:
 except Exception as e:
     print(e)
 
+try:
+    with open('admins.json', 'r', encoding='UTF-8') as File:
+        content = File.read()
+        admins_json= json.loads(content)
+        for admin in admins_json:
+            admin = ADMINS.Admin.from_dict(admin)
+            admins.append(admin)
+        File.close()
+except Exception as e:
+    print(e)
+
 
 def isUser(email):
     for user in users:
@@ -58,7 +70,20 @@ def isUser(email):
             return user.getId()
     return False
 
-def isUserById(id):
+def findUserByEmail(email):
+    for user in users:
+        if user.getEmail() == email:
+            return user
+    return None
+
+
+def findAdminByUsername(username):
+    for admin in admins:
+        if admin.getUsername() == username:
+            return admin
+    return None
+
+def findUser(id):
     for user in users:
         if user.getId() == id:
             return user
@@ -107,15 +132,10 @@ except Exception as e:
     print(e)
 
 
-try:
-    with open('admins.json', 'r', encoding='UTF-8') as File:
-        content = File.read()
-        admins= json.loads(content)
-        File.close()
-except Exception as e:
-    print(e)
 
     
+
+
     
     
 def SmartSearch(user_input):
@@ -195,6 +215,115 @@ def getSimilarMovies( movie_title):
         print("AI Error:", e)
         return []
 
+
+def SmartAnalytics():
+    try:
+        total_movies = len(movies)
+        total_bookings = len(bookings)
+        total_ratings = len(ratings)
+
+        booking_count = {}
+        for b in bookings:
+            booking_count[b.getMovieId()] = booking_count.get(b.getMovieId(), 0) + 1
+        top_booked = sorted(booking_count.items(), key=lambda x: x[1], reverse=True)[:5]
+        top_booked_titles = [next((m.getTitle() for m in movies if m.getId() == mid), '') for mid, _ in top_booked]
+
+        avg_ratings = []
+        for m in movies:
+            scores = [r.getScore() for r in ratings if r.getMovieId() == m.getId()]
+            if scores:
+                avg = sum(scores) / len(scores)
+                avg_ratings.append((m.getTitle(), round(avg, 1)))
+        top_rated = sorted(avg_ratings, key=lambda x: x[1], reverse=True)[:5]
+
+        prompt = f"""
+        Give me a simple summary of the movie platform data.
+- Total Movies: {total_movies}
+- Total Bookings: {total_bookings}
+- Total Ratings: {total_ratings}
+
+Top 5 Most Booked Movies:
+{chr(10).join(f"- {t}" for t in top_booked_titles)}
+
+Top 5 Rated Movies:
+{chr(10).join(f"- {t} ({s}★)" for t, s in top_rated)}
+
+list of movies {movies}
+list of bookings {bookings}
+list of ratings {ratings}
+
+
+provide:
+- What movies are most popular?
+- What genres or movies have the highest ratings?
+- Is there anything we can do to improve?
+
+Keep it short and easy to understand.
+
+"""
+
+        response = model.generate_content(prompt)
+        console.print(f"[bold green]Smart Analytics Report:[/bold green]\n\n{response.text.strip()}")
+
+    except Exception as e:
+        console.print(f"[red] Failed to generate analytics: {e}[/red]")
+
+def AIForecast():
+    try:
+        total_movies = len(movies)
+        total_bookings = len(bookings)
+        total_ratings = len(ratings)
+
+        booking_count = {}
+        for b in bookings:
+            booking_count[b.getMovieId()] = booking_count.get(b.getMovieId(), 0) + 1
+        top_booked = sorted(booking_count.items(), key=lambda x: x[1], reverse=True)[:5]
+        top_booked_titles = [next((m.getTitle() for m in movies if m.getId() == mid), '') for mid, _ in top_booked]
+
+        avg_ratings = []
+        for m in movies:
+            scores = [r.getScore() for r in ratings if r.getMovieId() == m.getId()]
+            if scores:
+                avg = sum(scores) / len(scores)
+                avg_ratings.append((m.getTitle(), round(avg, 1)))
+        top_rated = sorted(avg_ratings, key=lambda x: x[1], reverse=True)[:5]
+
+        prompt = f"""
+You are a smart AI helping an admin forecast future movie bookings.
+
+- Total Movies: {total_movies}
+- Total Bookings: {total_bookings}
+- Total Ratings: {total_ratings}
+
+Top 5 Most Booked Movies:
+{chr(10).join(f"- {t}" for t in top_booked_titles)}
+
+Top 5 Rated Movies:
+{chr(10).join(f"- {t} ({s}★)" for t, s in top_rated)}
+
+list of movies {movies}
+list of bookings {bookings}
+list of ratings {ratings}
+
+
+
+provide a short prediction:
+- Which types of movies might be booked more in future?
+- How can we increase future bookings?
+
+Be short and simple.
+
+"""
+
+        response = model.generate_content(prompt)
+        console.print(f"[bold green]Smart Analytics Report:[/bold green]\n\n{response.text.strip()}")
+
+    except Exception as e:
+        console.print(f"[red] Failed to generate analytics: {str(e)}[/red]")
+
+
+
+
 console = Console()
 
 
@@ -217,12 +346,24 @@ selected = questionary.select(
 if selected == choices[0]:
 
     user_email  = console.input("enter your email: ")
-    if isUser(user_email):
-        console.print('[bold green]ً welcome back ! [/bold green]')
+    user = findUserByEmail(user_email)
+    if user is not None:
+        user_password = console.input("enter your password: ")
+        while user_password != user.getPassword():
+            console.print('[bold red]ً sorry ! password is incorrect[/bold red]')
+            user_password = console.input("enter your password: ")
+        else:
+            console.print('[bold green]ً welcome back ! [/bold green]')
+            
+    
+
  
     else:
-        user = USER.User.from_dict({'id':random.randint(100000, 999999) , "email":user_email})
-        console.print('\n[bold blue] Welcome ! new account created [/bold blue]')
+        console.print("[bold blue] email not found ! so we will create a new account now [/bold blue]")
+        user_password = console.input("enter your password: ")
+
+        user = USER.User.from_dict({'id':random.randint(100000, 999999) , "email":user_email,"password": user_password})
+        console.print('\n[bold green] Welcome ! new account created [/bold green]')
         users.append(user)
 
             
@@ -571,35 +712,36 @@ seat: {removed.getSeat()}
             file.write(content)
 
 elif selected == choices[1]:
-
-    admin_email  = console.input("enter your email: ")
-    emailFinded = False
-    for admin in admins:
-        if admin['email'] == admin_email:
-            emailFinded = True
+    admin_username  = console.input("enter your username: ")
+    admin = findAdminByUsername(admin_username)
+    if admin is not None:
+        admin_password = console.input("enter your password: ")
+        while admin_password != admin.getPassword():
+            console.print('[bold red]ً sorry ! password is incorrect[/bold red]')
+            admin_password = console.input("enter your password: ")
+        else:
             console.print('[bold green]ً welcome back ! [/bold green]')
-            continue
-    if emailFinded == False:
-        console.print('[bold red] Sorry ! email not found [/bold red]')
-    else:
-
-        msg = console.print('''\n[bold red]ًWelcome to Movie CLI Project ! (Signed As Admin) [/bold red]ً
+            
+                
+            msg = console.print('''\n[bold green]ًWelcome to Movie CLI Project ! (Signed As Admin) [/bold green]ً
 Please choose an option:
 ''')
         admin_choices = [
     "1) Show available movies",
-    "2) Add new movie",
-    "3) Delete a movie",
-    "4) Edit existing movie information",
-    "5) Book a movie for customer",
-    "6) Cancel a movie booking for customer",
-    "7) View customer booking history",
-    "8) View movies Statistics & Reports",
-    "9) Smart Analytics & Predictions (using AI)",
-    "10) AI Forecast: Future Booking Predictions (using AI)",
-    "11) Movie Success Predictor (using AI)",
+    "2) Delete customer account",
+    "3) Add new movie",
+    "4) Delete a movie",
+    "5) Edit existing movie information",
+    "6) Book a movie for customer",
+    "7) Cancel a movie booking for customer",
+    "8) View customer booking history",
+    "9) View movies Statistics & Reports",
+    "10) Smart Analytics (using AI)",
+    "11) AI Forecasting & Predictions (using AI)",
     "12) Summarize reviews (using AI)",
-    "13) Exit",
+    "13) Add Admin account",
+    "14) Delete Admin account",
+    "15) Exit",
 ]
 
         selected3 = questionary.select(
@@ -607,7 +749,7 @@ Please choose an option:
         choices=admin_choices,
         use_arrow_keys=True).ask()
    
-        while selected3 != admin_choices[12]:
+        while selected3 != admin_choices[14]:
             if selected3 == admin_choices[0]:
                     for movie in movies:
                         movie_bookings = [b for b in bookings if b.getMovieId() == movie.getId()]
@@ -640,7 +782,41 @@ Ratings:[/blue]''')
                                 score = ratin.getScore()
                                 console.print(f" [bold]{i}[/bold]- {description}: {score}")
                                 print('----------------')
+
+
             elif selected3 == admin_choices[1]:
+                if not users:
+                    console.print("[red] not users found.[/red]")
+                else:
+                    users_choice = [
+                        questionary.Choice(title=f"{u.getEmail()}", value=u.getId())
+                        for u in users
+                    ]
+                    selected_id = questionary.select(
+                        "Select a user to delete:", choices=users_choice
+                    ).ask()
+
+                    selected_user = next((u for u in users if u.getId() == selected_id), None)
+
+                    if selected_user:
+                        confirm = questionary.confirm(f"Are you sure you want to delete '{selected_user.getEmail()}'?").ask()
+                        if confirm:
+                            users.remove(selected_user)
+
+                            ratings = [r for r in ratings if r.getUserId() != selected_user.getId()]
+
+                            bookings = [b for b in bookings if b.getUserId() != selected_user.getId()]
+
+                            console.print(f"[bold red]User '{selected_user.getEmail()}' deleted.[/bold red]")
+
+
+
+           
+           
+           
+           
+           
+            elif selected3 == admin_choices[2]:
                 movie_name= console.input("enter movie name\n")
                 for m in movies:
                     while m.getTitle() == movie_name:
@@ -718,7 +894,7 @@ genres: {(" - ".join(genre_names))}
                 
 
 
-            elif selected3 == admin_choices[2]:
+            elif selected3 == admin_choices[3]:
                 if not movies:
                     console.print("[red]No movies to delete.[/red]")
                 else:
@@ -747,7 +923,7 @@ genres: {(" - ".join(genre_names))}
                             console.print(f"[bold red]Movie '{selected_movie.getTitle()}' deleted.[/bold red]")
 
 
-            elif selected3 == admin_choices[3]:
+            elif selected3 == admin_choices[4]:
                 if not movies:
                     console.print("[red]No movies to edit.[/red]")
                 else:
@@ -799,7 +975,7 @@ genres: {(" - ".join(genre_names))}
 
 
 
-            elif selected3 == admin_choices[4]:
+            elif selected3 == admin_choices[5]:
                 if not users or not movies:
                     console.print("[red] sorry ! no users or movies found[/red]")
                 else:
@@ -870,7 +1046,7 @@ seat: {seat}
 [/bold green]''')
 
 
-            elif selected3 == admin_choices[5]:
+            elif selected3 == admin_choices[6]:
                 if not users or not bookings:
                     console.print("[red] sorry ! no users or movies found[/red]")
                 else:
@@ -895,7 +1071,7 @@ seat: {seat}
                                 console.print(f"[bold red] booking canceled: {removed.getRow()}{removed.getSeat()}[/bold red]")
                                 continue
 
-            elif selected3 == admin_choices[6]:
+            elif selected3 == admin_choices[7]:
                 if not users or not bookings:
                     console.print("[red] sorry ! no users or movies found[/red]")
                 else:
@@ -907,7 +1083,7 @@ seat: {seat}
                     if not user_bookings:
                         console.print("[red] sorry ! there is no bookings for selected user[/red]")
                     else:
-                        user_selected_email = isUserById(selected_user_id)
+                        user_selected_email = findUser(selected_user_id)
 
                         console.print(f"\n[bold blue] booking history for user: {user_selected_email.getEmail()}[/bold blue]\n")
                         for i, b in enumerate(user_bookings, start=1):
@@ -919,7 +1095,7 @@ seat: {seat}
             """)
 
  
-            elif selected3 == admin_choices[7]:
+            elif selected3 == admin_choices[8]:
                 if not movies:
                     console.print("[red] no movies found.[/red]")
                 else:
@@ -977,18 +1153,16 @@ seat: {seat}
 
                         console.print("[bold green]Report generated successfully! [/bold green]")
 
-            elif selected3 == admin_choices[8]:
-                #smart analytics using AI
-                pass 
-
             elif selected3 == admin_choices[9]:
-                #Ai Forecast
-                pass
+                console.print("[blue]🔍 Generating smart analytics...[/blue]\n")
+                SmartAnalytics()
+                print('\n')
+                
 
             elif selected3 == admin_choices[10]:
-                # movie success predictor
-                pass
-
+                console.print("[blue]🔍 Generating Ai Forecast analytics...[/blue]\n")
+                AIForecast()
+                print('\n')
 
             elif selected3 == admin_choices[11]:
                 select_movie_choise = []
@@ -1011,10 +1185,53 @@ seat: {seat}
                 console.print(f"\n[bold blue]Summary of Reviews for {selected_movie.getTitle()}[/bold blue]:")
                 console.print(summary[0])
                 
-            
 
 
+            elif selected3 == admin_choices[12]:
+                console.print("[bold yellow]Add new admin[/bold yellow]\n")
 
+                admin_username = console.input("Enter admin username: ")
+
+                existing_admin = next((a for a in admins if a.getUsername().lower() == admin_username.lower()), None)
+                if existing_admin:
+                    console.print("[red]Sorry ! email already exists.[/red]")
+                else:
+                    admin_password = console.input("Enter a password: ")
+
+                    admin_id = random.randint(100000, 999999)
+                    admin_data = {
+                            "id": admin_id,
+                            "username": admin_username,
+                            "password": admin_password,
+                    }
+
+                    new_admin = ADMINS.Admin.from_dict(admin_data)
+                    admins.append(new_admin)
+
+                    console.print(f"[green] Admin added successfully! username: {admin_username}[/green]")
+ 
+            elif selected3 == admin_choices[13]:
+                if not admins:
+                    console.print("[red] not admins found.[/red]")
+                else:
+                    admins_choise = [
+                        questionary.Choice(title=f"{a.getUsername()}", value=a.getId())
+                        for a in admins
+                    ]
+                    selected_id = questionary.select(
+                        "Select a user to delete:", choices=admins_choise
+                    ).ask()
+
+                    selected_admin = next((a for a in admins if a.getId() == selected_id), None)
+
+                    if selected_admin:
+                        confirm = questionary.confirm(f"Are you sure you want to delete '{selected_admin.getUsername()}'?").ask()
+                        if confirm:
+                            admins.remove(selected_admin)
+
+                            console.print(f"[bold red]Admin '{selected_admin.getEmail()}' deleted.[/bold red]")
+
+                
                 
 
             
@@ -1026,10 +1243,10 @@ seat: {seat}
             use_arrow_keys=True ).ask()
         
         else:
-            with open('admins.json','w', encoding='UTF-8') as File:
-                content = json.dumps(admins, indent=2)
-                File.write(content)
-                File.close()
+
+            with open('admins.json', 'w', encoding='UTF-8') as file:
+                content = json.dumps([a.to_dict() for a in admins], indent=2, ensure_ascii=False)
+                file.write(content)
                 
             with open('users.json', 'w', encoding='UTF-8') as file:
                 content = json.dumps([u.to_dict() for u in users], indent=2, ensure_ascii=False)
@@ -1052,6 +1269,9 @@ seat: {seat}
                 file.write(content)
             
                     
+    else: 
+        console.print("[red]sorry ! username not found.[/red]")
+        exit
             
           
           

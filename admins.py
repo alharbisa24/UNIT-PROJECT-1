@@ -1,18 +1,18 @@
-class User():
-    def __init__(self,id, email, password):
+class Admin():
+    def __init__(self,id, username, password):
         self.__id = id
-        self.__email = email
+        self.__username = username
         self.__password= password
 
 
     def getId(self):
         return self.__id
     
-    def getEmail(self):
-        return self.__email
+    def getUsername(self):
+        return self.__username
     
-    def setEmail(self,email):
-        self.__email = email
+    def setUsername(self,username):
+        self.__username = username
 
     def getPassword(self):
         return self.__password
@@ -24,9 +24,9 @@ class User():
     def to_dict(self):
         return {
             "id": self.__id,
-            "email": self.__email,
+            "username": self.__username,
             "password": self.__password
-                            }
+                        }
     
     def from_dict(data):
-      return User(data['id'], data['email'], data['password'])
+      return Admin(data['id'], data['username'], data['password'])

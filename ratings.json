@@ -1,221 +1,212 @@
 [
-  { 
-      "id": 1,
-       "movie_id": 1, 
-       "user_id": 1,
-        "description": "Great concept!",
-         "score": 5
-       },
-  { 
-      "id": 2,
-       "movie_id": 1,
-        "user_id":1, 
-        "description": "Very clever and engaging.", 
-        "score": 4 
-      },
   {
-       "id": 3,
-        "movie_id": 1,
-         "user_id":209619, 
-         "description": "One of Nolan's best.",
-          "score": 5 
-      },
-
-  { 
-      "id": 4,
-      "movie_id": 2,
-       "user_id": 1,
-       "description": "Amazing performance by Ledger.",
-        "score": 5
-       },
-  { 
-      "id": 5, 
-  "movie_id": 2,
-   "user_id":1, 
-   "description": "Dark and intense.",
+    "id": 1,
+    "movie_id": 1,
+    "user_id": 1,
+    "description": "Great concept!",
+    "score": 5
+  },
+  {
+    "id": 2,
+    "movie_id": 1,
+    "user_id": 1,
+    "description": "Very clever and engaging.",
     "score": 4
   },
   {
-       "id": 6, 
-       "movie_id": 2, 
-       "user_id":209619, 
-       "description": "Masterpiece of a superhero movie.",
-        "score": 5 
-      },
-
+    "id": 3,
+    "movie_id": 1,
+    "user_id": 209619,
+    "description": "One of Nolan's best.",
+    "score": 5
+  },
   {
-       "id": 7,
-        "movie_id": 3,
-         "user_id": 1,
-          "description": "Thought-provoking and emotional.",
-           "score": 5 
-          },
-  { 
-      "id": 8,
-       "movie_id": 3,
-        "user_id":1,
-         "description": "Visually stunning.",
-          "score": 4 
-      },
-  { 
-      "id": 9,
-       "movie_id": 3,
-        "user_id":209619,
-         "description": "A bit slow but brilliant.",
-          "score": 4 
-      },
-
-  { 
-      "id": 10,
-       "movie_id": 4, 
-       "user_id": 1,
-        "description": "Inspirational story.", 
-        "score": 5 
-      },
-  { 
-      "id": 11,
-       "movie_id": 4,
-        "user_id":1, 
-        "description": "Classic drama.", 
-        "score": 5 
-      },
+    "id": 4,
+    "movie_id": 2,
+    "user_id": 1,
+    "description": "Amazing performance by Ledger.",
+    "score": 5
+  },
   {
-       "id": 12,
-        "movie_id": 4,
-         "user_id":209619, 
-         "description": "Well written and emotional.", 
-         "score": 4
-       },
-
-  { 
-      "id": 13, 
-      "movie_id": 5,
-       "user_id": 1, 
-       "description": "Unique and stylish.",
-        "score": 4 
-      },
-  { 
-      "id": 14,
-       "movie_id": 5,
-        "user_id":1,
-         "description": "Great dialogue.",
-          "score": 5
-       },
-  { 
-      "id": 15,
-       "movie_id": 5,
-        "user_id":209619,
-         "description": "Loved the structure.",
-          "score": 4
-       },
-
-  { 
-      "id": 16,
-       "movie_id": 6, 
-       "user_id": 1, 
-       "description": "Timeless classic.", 
-       "score": 5 
-      },
-  { 
-      "id": 17,
-       "movie_id": 6,
-        "user_id":1, 
-        "description": "Epic and powerful.", 
-        "score": 5 
-      },
-  { 
-      "id": 18,
-       "movie_id": 6,
-        "user_id":209619,
-         "description": "Legendary film.", 
-         "score": 5
-       },
-
-  { 
-      "id": 19,
-       "movie_id": 7, 
-       "user_id": 1, 
-       "description": "Innovative action scenes.", 
-       "score": 4 
-      },
-  { 
-      "id": 20, 
-      "movie_id": 7,
-       "user_id":1, 
-       "description": "Great sci-fi elements.",
-       "score": 5 
-      },
-  { 
-      "id": 21,
-       "movie_id": 7, 
-       "user_id":209619, 
-       "description": "A bit confusing but fun.",
-        "score": 4 
-      },
-
-  { 
-      "id": 22,
-       "movie_id": 8, 
-       "user_id": 1, 
-       "description": "Deep and intense.", 
-       "score": 4 
-      },
-  { 
-      "id": 23,
-       "movie_id": 8, 
-       "user_id":1, 
-       "description": "Brilliantly executed.", 
-       "score": 5
-       },
-  { 
-      "id": 24,
-       "movie_id": 8,
-        "user_id":209619,
-         "description": "Unique storyline.",
-          "score": 4 
-      },
-
+    "id": 5,
+    "movie_id": 2,
+    "user_id": 1,
+    "description": "Dark and intense.",
+    "score": 4
+  },
   {
-       "id": 25,
-        "movie_id": 9, 
-        "user_id": 1, 
-        "description": "Heartwarming journey.",
-         "score": 5 
-      },
+    "id": 6,
+    "movie_id": 2,
+    "user_id": 209619,
+    "description": "Masterpiece of a superhero movie.",
+    "score": 5
+  },
   {
-       "id": 26,
-        "movie_id": 9, 
-        "user_id":1, 
-        "description": "Loved the character.",
-         "score": 5
-       },
-  { 
-      "id": 27,
-       "movie_id": 9,
-        "user_id":209619,
-         "description": "So emotional.",
-          "score": 5
-       },
-
-  { 
-      "id": 28,
-       "movie_id": 10,
-        "user_id": 1, 
-        "description": "Epic and intense.", 
-        "score": 4 
-      },
-  { 
-      "id": 29, 
-      "movie_id": 10,
-       "user_id":1, 
-       "description": "Great performances.", 
-       "score": 4 
-      },
-  { 
-      "id": 30, 
-      "movie_id": 10,
-       "user_id":209619, 
-       "description": "Loved the action.",
-        "score": 5
-       }
+    "id": 7,
+    "movie_id": 3,
+    "user_id": 1,
+    "description": "Thought-provoking and emotional.",
+    "score": 5
+  },
+  {
+    "id": 8,
+    "movie_id": 3,
+    "user_id": 1,
+    "description": "Visually stunning.",
+    "score": 4
+  },
+  {
+    "id": 9,
+    "movie_id": 3,
+    "user_id": 209619,
+    "description": "A bit slow but brilliant.",
+    "score": 4
+  },
+  {
+    "id": 10,
+    "movie_id": 4,
+    "user_id": 1,
+    "description": "Inspirational story.",
+    "score": 5
+  },
+  {
+    "id": 11,
+    "movie_id": 4,
+    "user_id": 1,
+    "description": "Classic drama.",
+    "score": 5
+  },
+  {
+    "id": 12,
+    "movie_id": 4,
+    "user_id": 209619,
+    "description": "Well written and emotional.",
+    "score": 4
+  },
+  {
+    "id": 13,
+    "movie_id": 5,
+    "user_id": 1,
+    "description": "Unique and stylish.",
+    "score": 4
+  },
+  {
+    "id": 14,
+    "movie_id": 5,
+    "user_id": 1,
+    "description": "Great dialogue.",
+    "score": 5
+  },
+  {
+    "id": 15,
+    "movie_id": 5,
+    "user_id": 209619,
+    "description": "Loved the structure.",
+    "score": 4
+  },
+  {
+    "id": 16,
+    "movie_id": 6,
+    "user_id": 1,
+    "description": "Timeless classic.",
+    "score": 5
+  },
+  {
+    "id": 17,
+    "movie_id": 6,
+    "user_id": 1,
+    "description": "Epic and powerful.",
+    "score": 5
+  },
+  {
+    "id": 18,
+    "movie_id": 6,
+    "user_id": 209619,
+    "description": "Legendary film.",
+    "score": 5
+  },
+  {
+    "id": 19,
+    "movie_id": 7,
+    "user_id": 1,
+    "description": "Innovative action scenes.",
+    "score": 4
+  },
+  {
+    "id": 20,
+    "movie_id": 7,
+    "user_id": 1,
+    "description": "Great sci-fi elements.",
+    "score": 5
+  },
+  {
+    "id": 21,
+    "movie_id": 7,
+    "user_id": 209619,
+    "description": "A bit confusing but fun.",
+    "score": 4
+  },
+  {
+    "id": 22,
+    "movie_id": 8,
+    "user_id": 1,
+    "description": "Deep and intense.",
+    "score": 4
+  },
+  {
+    "id": 23,
+    "movie_id": 8,
+    "user_id": 1,
+    "description": "Brilliantly executed.",
+    "score": 5
+  },
+  {
+    "id": 24,
+    "movie_id": 8,
+    "user_id": 209619,
+    "description": "Unique storyline.",
+    "score": 4
+  },
+  {
+    "id": 25,
+    "movie_id": 9,
+    "user_id": 1,
+    "description": "Heartwarming journey.",
+    "score": 5
+  },
+  {
+    "id": 26,
+    "movie_id": 9,
+    "user_id": 1,
+    "description": "Loved the character.",
+    "score": 5
+  },
+  {
+    "id": 27,
+    "movie_id": 9,
+    "user_id": 209619,
+    "description": "So emotional.",
+    "score": 5
+  },
+  {
+    "id": 28,
+    "movie_id": 10,
+    "user_id": 1,
+    "description": "Epic and intense.",
+    "score": 4
+  },
+  {
+    "id": 29,
+    "movie_id": 10,
+    "user_id": 1,
+    "description": "Great performances.",
+    "score": 4
+  },
+  {
+    "id": 30,
+    "movie_id": 10,
+    "user_id": 209619,
+    "description": "Loved the action.",
+    "score": 5
+  }
 ]

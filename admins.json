@@ -1,5 +1,12 @@
 [
   {
-    "email": "alharbisa24@gmail.com"
+    "id": 1,
+    "username": "admin",
+    "password": "1"
+  },
+  {
+    "id": 129069,
+    "username": "test",
+    "password": "123"
   }
 ]
