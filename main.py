@@ -701,13 +701,13 @@ Please choose an option:
 ''')
         admin_choices = [
     "1) Show available movies",
-    "2) Delete customer account",
+    "2) Delete user account",
     "3) Add new movie",
     "4) Delete a movie",
     "5) Edit existing movie information",
-    "6) Book a movie for customer",
-    "7) Cancel a movie booking for customer",
-    "8) View customer booking history",
+    "6) Book a movie for user",
+    "7) Cancel a movie booking for user",
+    "8) View user booking history",
     "9) View movies Statistics & Reports",
     "10) Smart Analytics (using AI)",
     "11) AI Forecasting & Predictions (using AI)",
