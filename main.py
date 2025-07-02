@@ -294,7 +294,7 @@ Be short and simple.
 """
 
         response = model.generate_content(prompt)
-        console.print(f"[bold green]Smart Analytics Report:[/bold green]\n\n{response.text.strip()}")
+        console.print(f"[bold green]AI Forecast :[/bold green]\n\n{response.text.strip()}")
 
     except Exception as e:
         console.print(f"[red] Failed to generate analytics: {str(e)}[/red]")
@@ -391,7 +391,7 @@ Please choose an option:
 Description: [black]{movie.getDescription()}        [/black]                       
 Release Year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
 Average Ratings : [bold yellow]{round(average_score)} ★ [/bold yellow]       
-Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
+Avaliable Seats : [bold yellow]{int(100 -len(movie_bookings))}[/bold yellow]   
 Genres: [black] {(" - ".join(genre_names))} [/black]
 Ratings:[/blue]''')
                             i = 0
@@ -518,6 +518,8 @@ seat: {removed.getSeat()}
                 console.print("\nBookings list:")
                 for b in user_bookings:
                     movie = findMovie(b.getMovieId())
+                    if movie is None:
+                        continue
                     console.print(f"{movie.getTitle()} - Row {b.getRow()} Seat {b.getSeat()}")
         
 
@@ -744,7 +746,7 @@ Please choose an option:
 Description: [black]{movie.getDescription()}        [/black]                       
 Release Year: [bold yellow]{movie.getReleaseYear()}        [/bold yellow]                       
 Average Ratings : [bold yellow]{round(average_score)} ★ [/bold yellow]       
-Avaliable Seats : [bold yellow]{len(movie_bookings)}[/bold yellow]   
+Avaliable Seats : [bold yellow]{100 - len(movie_bookings)}[/bold yellow]   
 Genres: [black] {(" - ".join(genre_names))} [/black]
 Ratings:[/blue]''')
                             i = 0
@@ -1028,7 +1030,7 @@ seat: {seat}
 
             elif selected3 == admin_choices[6]:
                 if not users or not bookings:
-                    console.print("[red] sorry ! no users or movies found[/red]")
+                    console.print("[red] sorry ! no users or bookings found[/red]")
                 else:
                     user_choices = [questionary.Choice(title=u.getEmail(), value=u.getId()) for u in users]
                     selected_user_id = questionary.select("Select user: ", choices=user_choices).ask()
@@ -1040,6 +1042,8 @@ seat: {seat}
                         booking_choices = []
                         for b in user_bookings:
                             movie = findMovie(b.getMovieId()) 
+                            if movie is None:
+                                continue
                             title = f"{movie.getTitle()} - Row {b.getRow()} Seat {b.getSeat()}"
                             booking_choices.append(questionary.Choice(title=title, value=b.getId()))
 
@@ -1068,6 +1072,8 @@ seat: {seat}
                         console.print(f"\n[bold blue] booking history for user: {user_selected_email.getEmail()}[/bold blue]\n")
                         for i, b in enumerate(user_bookings, start=1):
                             movie = findMovie(b.getMovieId()) 
+                            if movie is None:
+                                continue
                             console.print(f"""
 [green]#{i}[/green]
 🎬 Movie: [bold]{movie.getTitle()}[/bold]

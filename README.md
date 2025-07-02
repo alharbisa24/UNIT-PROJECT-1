@@ -35,8 +35,7 @@
 
 
 #### Usage :
-# when program run you will got a screen that ask you if you user or admin.
-# then enter your email/password to access system.
+when program run you will got a screen that ask you if you user or admin, then enter your email/password to access system.
 ## For Users:
 
 - Select 1 to show available movies details.
